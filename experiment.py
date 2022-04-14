@@ -13,6 +13,8 @@ import torchvision.utils as vutils
 from torchvision.datasets import CelebA
 from torch.utils.data import DataLoader
 
+from models.types_ import DecoderType
+
 
 class VAEXperiment(pl.LightningModule):
 
@@ -23,7 +25,7 @@ class VAEXperiment(pl.LightningModule):
 
         self.model = vae_model
         self.params = params
-        self.curr_device = None
+        self.curr_device = None  # TODO: ?
         self.hold_graph = False
         # TODO:
         # try:
@@ -38,7 +40,7 @@ class VAEXperiment(pl.LightningModule):
         real_img, labels = batch
         self.curr_device = real_img.device
 
-        results = self.forward(real_img, labels = labels)
+        results = self.forward(real_img, labels=labels)
         train_loss = self.model.loss_function(*results,
                                               M_N = self.params['kld_weight'], #al_img.shape[0]/ self.num_train_imgs,
                                               optimizer_idx=optimizer_idx,

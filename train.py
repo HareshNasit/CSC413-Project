@@ -9,11 +9,15 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.utilities.seed import seed_everything
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from pytorch_lightning.plugins import DDPPlugin
+from pathlib import Path
+
+from models.types_ import DecoderType
 
 # from .types_ import *
-# from dataset import VAEDataset  # TODO: await Adit
+from dataset import VAEDataset  # TODO: await Adit
 from models import VanillaVAE
 from experiment import VAEXperiment
+
 
 
 
@@ -31,6 +35,9 @@ model = VanillaVAE(
 )
 
 config = {
+    'model_params': {
+        'name': 'Vanilla VAE'
+    },
     'exp_params': {
         'LR': 0.005,
         'weight_decay': 0.0,
@@ -39,17 +46,27 @@ config = {
     },
     'data_params': {
         # TODO: decide
+        'data_path': "datasets/",
         'train_batch_size': 64,
         'val_batch_size':  64,
         'patch_size': 64,
         'num_workers': 4
+    },
+    'trainer_params': {
+        'accelerator': 'cpu',
+        # 'gpus': [0],  # TODO: if Colab put [1] or similar
+        'max_epochs': 100
     }
 }
 
 experiment = VAEXperiment(model,
                           config['exp_params'])
 
-data = VAEDataset(**config["data_params"], pin_memory=len(config['trainer_params']['gpus']) != 0)
+data = VAEDataset(
+    **config["data_params"],
+    # pin_memory=len(config['trainer_params']['gpus']) != 0
+    pin_memory=False
+)
 
 data.setup()
 runner = Trainer(logger=tb_logger,

@@ -5,12 +5,9 @@ from models import BaseVAE
 from torch import nn
 from torch.nn import functional as F
 from .types_ import *
-from enum import Enum
 
-class DecoderType(Enum):
-    COMBINED = 1
-    DOMAIN_X = 2
-    DOMAIN_Y = 3
+
+H = W = 8  # TODO: move to a config or something
 
 class Encoder(nn.Module):
     def __init__(
@@ -32,10 +29,17 @@ class Encoder(nn.Module):
             in_channels = h_dim
 
         self.encoder = nn.Sequential(*modules)
-        self.fc_mu = nn.Linear(hidden_dims[-1]*4, latent_dim)  # TODO: change 4 for whatever the flattened latent dimension is
-        self.fc_var = nn.Linear(hidden_dims[-1]*4, latent_dim)
+        self.fc_mu = nn.Linear(hidden_dims[-1]*H*W, latent_dim)  # TODO: change 4 for whatever the flattened latent dimension is
+        self.fc_var = nn.Linear(hidden_dims[-1]*H*W, latent_dim)
 
     def forward(self, input: Tensor) -> List[Tensor]:
+        # encoder input
+        # torch.Size([64, 3, 256, 256])
+        # encoder output
+        # torch.Size([64, 512, 8, 8])
+        # encoder output flattened
+        # torch.Size([64, 32768])
+        
         result = self.encoder(input)
         result = torch.flatten(result, start_dim=1)
 
@@ -43,6 +47,7 @@ class Encoder(nn.Module):
         # of the latent Gaussian distribution
         mu = self.fc_mu(result)
         log_var = self.fc_var(result)
+
 
         return [mu, log_var]
     
@@ -74,6 +79,22 @@ class Decoder(nn.Module):
             )
 
         self.decoder = nn.Sequential(*modules)
+
+        self.decoder_input = nn.Linear(latent_dim, hidden_dims[0] * H * W)
+
+        # TODO: use something else?
+        self.final_layer = nn.Sequential(
+                            nn.ConvTranspose2d(hidden_dims[-1],
+                                               hidden_dims[-1],
+                                               kernel_size=3,
+                                               stride=2,
+                                               padding=1,
+                                               output_padding=1),
+                            nn.BatchNorm2d(hidden_dims[-1]),
+                            nn.LeakyReLU(),
+                            nn.Conv2d(hidden_dims[-1], out_channels=3,
+                                      kernel_size=3, padding=1),
+                            nn.Tanh())
     
     def forward(self, z: Tensor) -> Tensor:
         """
@@ -83,9 +104,10 @@ class Decoder(nn.Module):
         :return: (Tensor) [B x C x H x W]
         """
         result = self.decoder_input(z)
-        result = result.view(-1, 512, 2, 2)
+        result = result.view(-1, 512, H, W)
         result = self.decoder(result)
         result = self.final_layer(result)
+
         return result
 
 
@@ -106,29 +128,13 @@ class VanillaVAE(BaseVAE):
 
         decoder_params = [in_channels, list(reversed(hidden_dims)), latent_dim]
         self.decoders = {
-            DecoderType.COMBINED : Decoder(*decoder_params),
+            DecoderType.COMBINED: Decoder(*decoder_params),
             DecoderType.DOMAIN_X: Decoder(*decoder_params),
-            DecoderType.DOMAIN_Y: Decoder(*decoder_params),
+            DecoderType.DOMAIN_Y: Decoder(*decoder_params)
         }
 
         self.latent_dim = latent_dim
-
-        self.decoder_input = nn.Linear(latent_dim, hidden_dims[-1] * 4)
-
-        # TODO: use something else?
-        self.final_layer = nn.Sequential(
-                            nn.ConvTranspose2d(hidden_dims[0],
-                                               hidden_dims[0],
-                                               kernel_size=3,
-                                               stride=2,
-                                               padding=1,
-                                               output_padding=1),
-                            nn.BatchNorm2d(hidden_dims[0]),
-                            nn.LeakyReLU(),
-                            nn.Conv2d(hidden_dims[0], out_channels=3,
-                                      kernel_size=3, padding=1),
-                            nn.Tanh())
-
+        self._decoder_type = DecoderType.COMBINED
 
     def reparameterize(self, mu: Tensor, logvar: Tensor) -> Tensor:
         """
@@ -142,17 +148,25 @@ class VanillaVAE(BaseVAE):
         eps = torch.randn_like(std)
         return eps * std + mu
 
+    @property
+    def decoder_type(self):
+        return self._decoder_type
+    
+    @decoder_type.setter
+    def decoder_type(self, value: DecoderType):
+        self._decoder_type = value
+    
     def freeze_encoder(self):
         self.encoder.freeze_weights()
 
-    def forward(self, input_: Tensor, decoder_type: DecoderType, **kwargs) -> List[Tensor]:
+    def forward(self, input_: Tensor, **kwargs) -> List[Tensor]:
 
         # Run encoder
         mu, log_var = self.encoder(input_)
         z = self.reparameterize(mu, log_var)
         
         # Run decoder
-        decoder = self.decoders[decoder_type]
+        decoder = self.decoders[self._decoder_type]
         
         return  [decoder(z), input_, mu, log_var]
 
@@ -195,7 +209,9 @@ class VanillaVAE(BaseVAE):
 
         z = z.to(current_device)
 
-        samples = self.decode(z)
+        decoder = self.decoders[self._decoder_type]
+        samples = decoder(z)
+
         return samples
 
     def generate(self, x: Tensor, **kwargs) -> Tensor:
