@@ -5,15 +5,21 @@ from models import BaseVAE
 from torch import nn
 from torch.nn import functional as F
 from .types_ import *
+from enum import Enum
 
+class DecoderType(Enum):
+    COMBINED = 1
+    DOMAIN_X = 2
+    DOMAIN_Y = 3
 
 class Encoder(nn.Module):
     def __init__(
         self,
         in_channels: int,
-        latent_dim: int,
-        hidden_dims: List
+        hidden_dims: List,
+        latent_dim: int
     ):
+        super().__init__()
         modules = []  
         for h_dim in hidden_dims:
             modules.append(
@@ -48,9 +54,10 @@ class Decoder(nn.Module):
     def __init__(
         self,
         in_channels: int,
-        hidden_dims: List
-        latent_dim: int,
+        hidden_dims: List,
+        latent_dim: int
     ):
+        super().__init__()
         modules = []
 
         for i in range(len(hidden_dims) - 1):
@@ -89,52 +96,36 @@ class VanillaVAE(BaseVAE):
                  hidden_dims: List,
                  latent_dim: int,
                  **kwargs) -> None:
-        super(VanillaVAE, self).__init__()
+        super().__init__()
 
         self.encoder = Encoder(
             in_channels,
             hidden_dims,
             latent_dim
         )
-        decoder_main = Decoder(
-            in_channels,
-            reversed(hidden_dims),
-            latent_dim
-        )
-        decoder_style1 = Decoder(
-            in_channels,
-            reversed(hidden_dims),
-            latent_dim
-        )
-        decoder_style2 = Decoder(
-            in_channels,
-            reversed(hidden_dims),
-            latent_dim
-        )
 
+        decoder_params = [in_channels, list(reversed(hidden_dims)), latent_dim]
         self.decoders = {
-            0: decoder_main,
-            1: decoder_style1,
-            2: decoder_style2
+            DecoderType.COMBINED : Decoder(*decoder_params),
+            DecoderType.DOMAIN_X: Decoder(*decoder_params),
+            DecoderType.DOMAIN_Y: Decoder(*decoder_params),
         }
 
         self.latent_dim = latent_dim
 
         self.decoder_input = nn.Linear(latent_dim, hidden_dims[-1] * 4)
 
-        hidden_dims.reverse()
-
         # TODO: use something else?
         self.final_layer = nn.Sequential(
-                            nn.ConvTranspose2d(hidden_dims[-1],  # TODO: probably hidden_dims[0]
-                                               hidden_dims[-1],  # TODO: probably hidden_dims[0]
+                            nn.ConvTranspose2d(hidden_dims[0],
+                                               hidden_dims[0],
                                                kernel_size=3,
                                                stride=2,
                                                padding=1,
                                                output_padding=1),
-                            nn.BatchNorm2d(hidden_dims[-1]),
+                            nn.BatchNorm2d(hidden_dims[0]),
                             nn.LeakyReLU(),
-                            nn.Conv2d(hidden_dims[-1], out_channels=3,
+                            nn.Conv2d(hidden_dims[0], out_channels=3,
                                       kernel_size=3, padding=1),
                             nn.Tanh())
 
@@ -154,14 +145,14 @@ class VanillaVAE(BaseVAE):
     def freeze_encoder(self):
         self.encoder.freeze_weights()
 
-    def forward(self, input_: Tensor, **kwargs, decoder: Decoder, decoder_num: int) -> List[Tensor]:
+    def forward(self, input_: Tensor, decoder_type: DecoderType, **kwargs) -> List[Tensor]:
 
         # Run encoder
         mu, log_var = self.encoder(input_)
         z = self.reparameterize(mu, log_var)
         
         # Run decoder
-        decoder = self.decoders[decoder_num]
+        decoder = self.decoders[decoder_type]
         
         return  [decoder(z), input_, mu, log_var]
 
@@ -214,10 +205,3 @@ class VanillaVAE(BaseVAE):
         :return: (Tensor) [B x C x H x W]
         """
         return self.forward(x)[0]
-
-def train():
-    model = VanillaVAE(
-        # ...
-    )
-    device = # ...
-    

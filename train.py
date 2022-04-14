@@ -1,26 +1,20 @@
 # Adapted from: https://github.com/AntixK/PyTorch-VAE/blob/a6896b944c918dd7030e7d795a8c13e5c6345ec7/run.py
 
+import os
 import torch
-from models import VanillaVAE
 from torch import nn
 from torch.nn import functional as F
-from .types_ import *
-from experiment import VAEXperiment
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.utilities.seed import seed_everything
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
-# from dataset import VAEDataset  # TODO: await Adit
 from pytorch_lightning.plugins import DDPPlugin
 
-import os
-import yaml
-import argparse
-import numpy as np
-from pathlib import Path
-from models import *
+# from .types_ import *
+# from dataset import VAEDataset  # TODO: await Adit
+from models import VanillaVAE
 from experiment import VAEXperiment
-import torch.backends.cudnn as cudnn
+
 
 
 tb_logger =  TensorBoardLogger(save_dir='logs/',
