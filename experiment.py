@@ -68,9 +68,12 @@ class VAEXperiment(pl.LightningModule):
         
     def sample_images(self):
         # Get sample reconstruction image            
+        print('saving')  # TODO: remove
         test_input, test_label = next(iter(self.trainer.datamodule.test_dataloader()))
         test_input = test_input.to(self.curr_device)
         test_label = test_label.to(self.curr_device)
+        print('test_input')
+        print('test_label')
 
 #         test_input, test_label = batch
         recons = self.model.generate(test_input, labels = test_label)
@@ -85,12 +88,12 @@ class VAEXperiment(pl.LightningModule):
             samples = self.model.sample(144,
                                         self.curr_device,
                                         labels = test_label)
-            vutils.save_image(samples.cpu().data,
-                              os.path.join(self.logger.log_dir , 
-                                           "Samples",      
-                                           f"{self.logger.name}_Epoch_{self.current_epoch}.png"),
-                              normalize=True,
-                              nrow=12)
+            # vutils.save_image(samples.cpu().data,
+            #                   os.path.join(self.logger.log_dir , 
+            #                                "Samples",      
+            #                                f"{self.logger.name}_Epoch_{self.current_epoch}.png"),
+            #                   normalize=True,
+            #                   nrow=12)
         except Warning:
             pass
 

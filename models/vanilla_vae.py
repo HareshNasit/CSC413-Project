@@ -5,9 +5,10 @@ from models import BaseVAE
 from torch import nn
 from torch.nn import functional as F
 from .types_ import *
+import numpy as np
 
 
-H = W = 8  # TODO: move to a config or something
+H = W = 2  # TODO: move to a config or something
 
 class Encoder(nn.Module):
     def __init__(
@@ -40,14 +41,24 @@ class Encoder(nn.Module):
         # encoder output flattened
         # torch.Size([64, 32768])
         
+        # print('input in encoder')
+        # print(input)
+        # print('input')
+        # print(input.shape)
         result = self.encoder(input)
         result = torch.flatten(result, start_dim=1)
 
         # Split the result into mu and var components
         # of the latent Gaussian distribution
+        # print('result')
+        # print(result)
+
         mu = self.fc_mu(result)
         log_var = self.fc_var(result)
-
+        # print('mu in encoder')
+        # print(mu)
+        # print('log_var in encoder')
+        # print(log_var)
 
         return [mu, log_var]
     
@@ -79,8 +90,10 @@ class Decoder(nn.Module):
             )
 
         self.decoder = nn.Sequential(*modules)
+        self.decoder.to(0)  # TODO: fix device
 
-        self.decoder_input = nn.Linear(latent_dim, hidden_dims[0] * H * W)
+        # TODO: combine below 3 steps into one sequential
+        self.decoder_input = nn.Linear(latent_dim, hidden_dims[0] * H * W, device=0)  # TODO: fix device
 
         # TODO: use something else?
         self.final_layer = nn.Sequential(
@@ -95,6 +108,7 @@ class Decoder(nn.Module):
                             nn.Conv2d(hidden_dims[-1], out_channels=3,
                                       kernel_size=3, padding=1),
                             nn.Tanh())
+        self.final_layer.to(0)  # TODO: fix device
     
     def forward(self, z: Tensor) -> Tensor:
         """
@@ -164,6 +178,9 @@ class VanillaVAE(BaseVAE):
         # Run encoder
         mu, log_var = self.encoder(input_)
         z = self.reparameterize(mu, log_var)
+
+        if torch.any(mu.isnan()):
+          raise Exception('rip')
         
         # Run decoder
         decoder = self.decoders[self._decoder_type]
@@ -188,10 +205,30 @@ class VanillaVAE(BaseVAE):
         kld_weight = kwargs['M_N'] # Account for the minibatch samples from the dataset
         recons_loss =F.mse_loss(recons, input)
 
+        # print('recons')
+        # print(recons)
+        # print('input')
+        # print(input)
+        # print('mu')
+        # print(mu)
+        # print('log_var')
+        # print(log_var)
+        # print('kld_weight')
+        # print(kld_weight)
+        # print('recons_loss')
+        # print(recons_loss)
 
         kld_loss = torch.mean(-0.5 * torch.sum(1 + log_var - mu ** 2 - log_var.exp(), dim = 1), dim = 0)
+        # kld_loss = torch.Tensor([0.])
+        # kld_loss = kld_loss.to('cuda')
+
+        # print('kld_loss')
+        # print(kld_loss)
 
         loss = recons_loss + kld_weight * kld_loss
+        # print('loss')
+        # print(loss)
+      
         return {'loss': loss, 'Reconstruction_Loss':recons_loss.detach(), 'KLD':-kld_loss.detach()}
 
     def sample(self,

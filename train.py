@@ -14,7 +14,8 @@ from pathlib import Path
 from models.types_ import DecoderType
 
 # from .types_ import *
-from dataset import VAEDataset  # TODO: await Adit
+from dataset import VAEDataset
+from datasets2 import train_loader # TODO: remove
 from models import VanillaVAE
 from experiment import VAEXperiment
 
@@ -29,7 +30,8 @@ seed_everything(42, True)
 
 # TODO: decide about these parameters
 model = VanillaVAE(
-    in_channels=3,
+    in_channels=1,
+    # in_channels=3,  # TODO: put back
     latent_dim=128,
     hidden_dims=[32, 64, 128, 256, 512]
 )
@@ -39,7 +41,7 @@ config = {
         'name': 'Vanilla VAE'
     },
     'exp_params': {
-        'LR': 0.005,
+        'LR': 0.0005,
         'weight_decay': 0.0,
         # 'scheduler_gamma': 0.95, # TODO:?
         'kld_weight': 0.00025,
@@ -53,8 +55,8 @@ config = {
         'num_workers': 4
     },
     'trainer_params': {
-        'accelerator': 'cpu',
-        # 'gpus': [0],  # TODO: if Colab put [1] or similar
+        # 'accelerator': 'gpu',
+        'gpus': [0],  # TODO: if Colab put [1] or similar
         'max_epochs': 100
     }
 }
@@ -62,13 +64,15 @@ config = {
 experiment = VAEXperiment(model,
                           config['exp_params'])
 
-data = VAEDataset(
-    **config["data_params"],
-    # pin_memory=len(config['trainer_params']['gpus']) != 0
-    pin_memory=False
-)
+# data = VAEDataset(
+#     **config["data_params"],
+#     pin_memory=len(config['trainer_params']['gpus']) != 0
+# )
+# data.setup()
 
-data.setup()
+# TODO: remove
+data = train_loader
+
 runner = Trainer(logger=tb_logger,
                  callbacks=[
                      LearningRateMonitor(),
@@ -86,4 +90,5 @@ Path(f"{tb_logger.log_dir}/Reconstructions").mkdir(exist_ok=True, parents=True)
 
 
 print(f"======= Training {config['model_params']['name']} =======")
-runner.fit(experiment, datamodule=data)
+# runner.fit(experiment, datamodule=data)
+runner.fit(experiment, data)
