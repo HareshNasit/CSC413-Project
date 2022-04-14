@@ -10,6 +10,67 @@ from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 
+from torchvision.datasets import MNIST
+
+# TODO: start
+
+class Mnist(Dataset):
+    def __init__(self, 
+                 data_path: str, 
+                 split: str,
+                 transform: Callable,
+                **kwargs):
+      
+        self.transforms = transform
+        self.data_dir = Path(data_path)
+
+        horse_imgs, zebra_imgs = None, None
+        horse_path = self.data_dir / ('horse2zebra/testA' if split == 'test' else 'horse2zebra/trainA')
+        zebra_path = self.data_dir / ('horse2zebra/testB' if split == 'test' else 'horse2zebra/trainB')
+ 
+        horse_imgs = sorted([f for f in horse_path.iterdir() if f.suffix == '.jpg'])
+        zebra_imgs = sorted([f for f in zebra_path.iterdir() if f.suffix == '.jpg'])
+
+        # might not need to shuffle as already done by dataloader
+        # imgs = horse_imgs + zebra_imgs
+        imgs = horse_imgs
+        random.shuffle(imgs)
+        self.imgs = imgs
+    
+    def __len__(self):
+        return len(self.imgs)
+    
+    def __getitem__(self, idx):
+        img = default_loader(self.imgs[idx])
+        
+        if self.transforms is not None:
+            img = self.transforms(img)
+        
+        return img, 0.0 # dummy datat to prevent breaking
+
+
+class VAEDataset2(LightningDataModule):
+    def __init__(self):
+        super().__init__()
+        self.t = transforms.Compose([
+          transforms.ToTensor(),
+          transforms.Resize(64)
+        ])
+
+    def setup(self, stage: Optional[str] = None) -> None:
+        self.train_dataset = MNIST('./datasets', train=True, download=True, transform=self.t)
+        self.val_dataset = MNIST('./datasets', train=False, download=True, transform=self.t)
+        # TODO: test dataset?
+        
+    def train_dataloader(self) -> DataLoader:
+        return DataLoader(self.train_dataset, batch_size=32)
+
+    def val_dataloader(self) -> Union[DataLoader, List[DataLoader]]:
+        return DataLoader(self.val_dataset, batch_size=32)
+    
+    def test_dataloader(self) -> Union[DataLoader, List[DataLoader]]:
+        return DataLoader(self.val_dataset, batch_size=32)
+# TODO: end
 
 class HorsesDataset(Dataset):
     """

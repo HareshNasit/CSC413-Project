@@ -14,8 +14,7 @@ from pathlib import Path
 from models.types_ import DecoderType
 
 # from .types_ import *
-from dataset import VAEDataset
-from datasets2 import train_loader # TODO: remove
+from dataset import VAEDataset, VAEDataset2
 from models import VanillaVAE
 from experiment import VAEXperiment
 
@@ -41,8 +40,9 @@ config = {
         'name': 'Vanilla VAE'
     },
     'exp_params': {
-        'LR': 0.0005,
-        'weight_decay': 0.0,
+        # 'LR': 0.0005,
+        'LR': 0.005,
+        # 'weight_decay': 0.0,
         # 'scheduler_gamma': 0.95, # TODO:?
         'kld_weight': 0.00025,
     },
@@ -71,7 +71,8 @@ experiment = VAEXperiment(model,
 # data.setup()
 
 # TODO: remove
-data = train_loader
+data = VAEDataset2()
+data.setup()
 
 runner = Trainer(logger=tb_logger,
                  callbacks=[
