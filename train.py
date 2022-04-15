@@ -14,7 +14,7 @@ from pathlib import Path
 from models.types_ import DecoderType
 
 # from .types_ import *
-from dataset import VAEDataset, VAEDataset2
+from dataset import VAEDataset, VAEDataset2, VAEDatasetCelebA
 from models import VanillaVAE
 from experiment import VAEXperiment
 
@@ -29,10 +29,12 @@ seed_everything(42, True)
 
 # TODO: decide about these parameters
 model = VanillaVAE(
-    in_channels=1,
-    # in_channels=3,  # TODO: put back
+    # in_channels=1,
+    in_channels=3,  # TODO: put back
+    # latent_dim=128, 
     latent_dim=128,
     hidden_dims=[32, 64, 128, 256, 512]
+    # hidden_dims=[32, 64, 128]
 )
 
 config = {
@@ -40,11 +42,15 @@ config = {
         'name': 'Vanilla VAE'
     },
     'exp_params': {
-        # 'LR': 0.0005,
-        'LR': 0.005,
-        # 'weight_decay': 0.0,
-        # 'scheduler_gamma': 0.95, # TODO:?
-        'kld_weight': 0.00025,
+        'LR': 0.0005,
+        # 'LR': 0.005,
+        'weight_decay': 0.0,
+        'scheduler_gamma': 0.95,
+        # 'kld_weight': 0.00025,
+        'kld_weight': 1,
+        # 'kld_weight': 0.001,
+        # 'kld_weight': 0.11,
+        # 'kld_weight': 0,
     },
     'data_params': {
         # TODO: decide
@@ -71,7 +77,10 @@ experiment = VAEXperiment(model,
 # data.setup()
 
 # TODO: remove
-data = VAEDataset2()
+# data = VAEDataset2()
+# data.setup()
+
+data = VAEDatasetCelebA(**config["data_params"], pin_memory=len(config['trainer_params']['gpus']) != 0)
 data.setup()
 
 runner = Trainer(logger=tb_logger,

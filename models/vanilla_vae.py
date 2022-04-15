@@ -8,7 +8,7 @@ from .types_ import *
 import numpy as np
 
 
-H = W = 2  # TODO: move to a config or something
+H = W = 2
 
 class Encoder(nn.Module):
     def __init__(
