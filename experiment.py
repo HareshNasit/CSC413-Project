@@ -102,8 +102,11 @@ class VAEXperiment(pl.LightningModule):
         optimizer = optim.Adam(self.model.parameters(),
                                lr=self.params['LR'],
                                weight_decay=self.params['weight_decay'])
-        scheduler = optim.lr_scheduler.ExponentialLR(
-          optimizer,
-          gamma = self.params['scheduler_gamma']
-        )
-        return {'optimizer': optimizer, 'scheduler': scheduler}
+        if 'scheduler_gamma' in self.params:
+          scheduler = optim.lr_scheduler.ExponentialLR(
+            optimizer,
+            gamma = self.params['scheduler_gamma']
+          )
+          return {'optimizer': optimizer, 'scheduler': scheduler}
+        else:
+          return optimizer

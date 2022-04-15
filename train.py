@@ -45,7 +45,7 @@ config = {
         # 'LR': 0.0005,
         'LR': 0.005,
         'weight_decay': 0.0,
-        'scheduler_gamma': 0.95,
+        # 'scheduler_gamma': 0.95,
         'kld_weight': 0.00025,
         # 'kld_weight': 1,
         # 'kld_weight': 0.001,
