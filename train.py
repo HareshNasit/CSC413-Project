@@ -25,7 +25,7 @@ tb_logger =  TensorBoardLogger(save_dir='logs/',
                                name='VanillaVAE')
 
 
-seed_everything(42, True)
+seed_everything(1265, True)
 
 # TODO: decide about these parameters
 model = VanillaVAE(
@@ -42,12 +42,12 @@ config = {
         'name': 'Vanilla VAE'
     },
     'exp_params': {
-        'LR': 0.0005,
-        # 'LR': 0.005,
+        # 'LR': 0.0005,
+        'LR': 0.005,
         'weight_decay': 0.0,
         'scheduler_gamma': 0.95,
-        # 'kld_weight': 0.00025,
-        'kld_weight': 1,
+        'kld_weight': 0.00025,
+        # 'kld_weight': 1,
         # 'kld_weight': 0.001,
         # 'kld_weight': 0.11,
         # 'kld_weight': 0,
