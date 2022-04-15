@@ -6,6 +6,57 @@ from .types_ import *
 
 
 H=W=8 # TODO: added
+
+class Encoder(nn.Module):
+  def __init__(
+        self,
+        in_channels: int,
+        latent_dim: int,
+        hidden_dims: List
+    ):
+      super().__init__()
+
+      modules = []
+      for h_dim in hidden_dims:
+            modules.append(
+                nn.Sequential(
+                    nn.Conv2d(in_channels, out_channels=h_dim,
+                              kernel_size= 3, stride= 2, padding  = 1),
+                    nn.BatchNorm2d(h_dim),
+                    nn.LeakyReLU())
+            )
+            in_channels = h_dim
+
+      self.model = nn.Sequential(*modules)
+      self.fc_mu = nn.Linear(hidden_dims[-1]*H*W, latent_dim)
+      self.fc_var = nn.Linear(hidden_dims[-1]*H*W, latent_dim)
+
+  def forward(self, input: Tensor) -> List[Tensor]:
+      result = self.model(input)
+      result = torch.flatten(result, start_dim=1)
+
+      # Split the result into mu and var components
+      # of the latent Gaussian distribution
+      mu = self.fc_mu(result)
+      log_var = self.fc_var(result)
+
+      return [mu, log_var]
+
+
+class Decoder(nn.Module):
+  def __init__(
+        self,
+        out_channels: int,
+        latent_dim: int,
+        hidden_dims: List
+    ):
+      pass
+  
+  # def forward(self, input: Tensor) -> List[Tensor]:
+  def forward(self, input: Tensor) -> any:
+      pass
+
+
 class VanillaVAE(BaseVAE):
 
 
@@ -24,22 +75,11 @@ class VanillaVAE(BaseVAE):
             hidden_dims = [32, 64, 128, 256, 512]
 
         # Build Encoder
-        for h_dim in hidden_dims:
-            modules.append(
-                nn.Sequential(
-                    nn.Conv2d(in_channels, out_channels=h_dim,
-                              kernel_size= 3, stride= 2, padding  = 1),
-                    nn.BatchNorm2d(h_dim),
-                    nn.LeakyReLU())
-            )
-            in_channels = h_dim
-
-        self.encoder = nn.Sequential(*modules)
-        self.fc_mu = nn.Linear(hidden_dims[-1]*H*W, latent_dim)  # TODO:
-        self.fc_var = nn.Linear(hidden_dims[-1]*H*W, latent_dim)  # TODO:
+        self.encoder = Encoder(in_channels, latent_dim, hidden_dims)
 
 
         # Build Decoder
+        self.decoder = Decoder(in_channels, latent_dim, list(reversed(hidden_dims)))
         modules = []
 
         self.decoder_input = nn.Linear(latent_dim, hidden_dims[-1] * H*W)  # TODO:
@@ -83,15 +123,7 @@ class VanillaVAE(BaseVAE):
         :param input: (Tensor) Input tensor to encoder [N x C x H x W]
         :return: (Tensor) List of latent codes
         """
-        result = self.encoder(input)
-        result = torch.flatten(result, start_dim=1)
-
-        # Split the result into mu and var components
-        # of the latent Gaussian distribution
-        mu = self.fc_mu(result)
-        log_var = self.fc_var(result)
-
-        return [mu, log_var]
+        return self.encoder(input)
 
     def decode(self, z: Tensor) -> Tensor:
         """
