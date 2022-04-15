@@ -54,7 +54,7 @@ class Decoder(nn.Module):
 
       modules = []
 
-      self.decoder_input = nn.Linear(latent_dim, hidden_dims[-1] * H*W)
+      self.decoder_input = nn.Linear(latent_dim, hidden_dims[0] * H * W)
 
       for i in range(len(hidden_dims) - 1):
           modules.append(
