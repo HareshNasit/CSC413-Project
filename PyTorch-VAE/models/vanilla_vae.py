@@ -50,11 +50,49 @@ class Decoder(nn.Module):
         latent_dim: int,
         hidden_dims: List
     ):
-      pass
+      super().__init__()
+
+      modules = []
+
+      self.decoder_input = nn.Linear(latent_dim, hidden_dims[-1] * H*W)
+
+      for i in range(len(hidden_dims) - 1):
+          modules.append(
+              nn.Sequential(
+                  nn.ConvTranspose2d(hidden_dims[i],
+                                      hidden_dims[i + 1],
+                                      kernel_size=3,
+                                      stride = 2,
+                                      padding=1,
+                                      output_padding=1),
+                  nn.BatchNorm2d(hidden_dims[i + 1]),
+                  nn.LeakyReLU())
+          )
+
+
+
+      self.decoder = nn.Sequential(*modules)
+
+      self.final_layer = nn.Sequential(
+                          nn.ConvTranspose2d(hidden_dims[-1],
+                                              hidden_dims[-1],
+                                              kernel_size=3,
+                                              stride=2,
+                                              padding=1,
+                                              output_padding=1),
+                          nn.BatchNorm2d(hidden_dims[-1]),
+                          nn.LeakyReLU(),
+                          nn.Conv2d(hidden_dims[-1], out_channels=out_channels,
+                                    kernel_size= 3, padding= 1),
+                          nn.Tanh())
   
-  # def forward(self, input: Tensor) -> List[Tensor]:
-  def forward(self, input: Tensor) -> any:
-      pass
+  def forward(self, z: Tensor) -> Tensor:
+      result = self.decoder_input(z)
+      result = result.view(-1, 512, H, W)  # TODO:
+      
+      result = self.decoder(result)
+      result = self.final_layer(result)
+      return result
 
 
 class VanillaVAE(BaseVAE):
@@ -77,44 +115,8 @@ class VanillaVAE(BaseVAE):
         # Build Encoder
         self.encoder = Encoder(in_channels, latent_dim, hidden_dims)
 
-
         # Build Decoder
         self.decoder = Decoder(in_channels, latent_dim, list(reversed(hidden_dims)))
-        modules = []
-
-        self.decoder_input = nn.Linear(latent_dim, hidden_dims[-1] * H*W)  # TODO:
-
-        hidden_dims.reverse()
-
-        for i in range(len(hidden_dims) - 1):
-            modules.append(
-                nn.Sequential(
-                    nn.ConvTranspose2d(hidden_dims[i],
-                                       hidden_dims[i + 1],
-                                       kernel_size=3,
-                                       stride = 2,
-                                       padding=1,
-                                       output_padding=1),
-                    nn.BatchNorm2d(hidden_dims[i + 1]),
-                    nn.LeakyReLU())
-            )
-
-
-
-        self.decoder = nn.Sequential(*modules)
-
-        self.final_layer = nn.Sequential(
-                            nn.ConvTranspose2d(hidden_dims[-1],
-                                               hidden_dims[-1],
-                                               kernel_size=3,
-                                               stride=2,
-                                               padding=1,
-                                               output_padding=1),
-                            nn.BatchNorm2d(hidden_dims[-1]),
-                            nn.LeakyReLU(),
-                            nn.Conv2d(hidden_dims[-1], out_channels=self.num_channels,
-                                      kernel_size= 3, padding= 1),
-                            nn.Tanh())
 
     def encode(self, input: Tensor) -> List[Tensor]:
         """
@@ -132,12 +134,7 @@ class VanillaVAE(BaseVAE):
         :param z: (Tensor) [B x D]
         :return: (Tensor) [B x C x H x W]
         """
-        result = self.decoder_input(z)
-        result = result.view(-1, 512, H, W)  # TODO:
-        
-        result = self.decoder(result)
-        result = self.final_layer(result)
-        return result
+        return self.decoder(z)
 
     def reparameterize(self, mu: Tensor, logvar: Tensor) -> Tensor:
         """
