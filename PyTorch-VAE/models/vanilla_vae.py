@@ -108,7 +108,6 @@ class VanillaVAE(BaseVAE):
         self.latent_dim = latent_dim
         self.num_channels = in_channels
 
-        modules = []
         if hidden_dims is None:
             hidden_dims = [32, 64, 128, 256, 512]
 
@@ -116,7 +115,14 @@ class VanillaVAE(BaseVAE):
         self.encoder = Encoder(in_channels, latent_dim, hidden_dims)
 
         # Build Decoder
-        self.decoder = Decoder(in_channels, latent_dim, list(reversed(hidden_dims)))
+        decoder_params = [in_channels, latent_dim, list(reversed(hidden_dims))]
+        self.decoders = {
+            DecoderType.COMBINED: Decoder(*decoder_params),
+            # TODO: update later
+            DecoderType.DOMAIN_X: Decoder(*decoder_params),
+            DecoderType.DOMAIN_Y: Decoder(*decoder_params)
+        }
+        self._decoder = self.decoders[DecoderType.COMBINED]
 
     def encode(self, input: Tensor) -> List[Tensor]:
         """
@@ -148,6 +154,14 @@ class VanillaVAE(BaseVAE):
         eps = torch.randn_like(std)
         return eps * std + mu
 
+    @property
+    def decoder(self):
+        return self._decoder
+    
+    @decoder.setter
+    def set_decoder(self, decoder_type: DecoderType):
+        self._decoder = self.decoders[decoder_type]
+    
     def forward(self, input: Tensor, **kwargs) -> List[Tensor]:
         mu, log_var = self.encode(input)
         z = self.reparameterize(mu, log_var)
