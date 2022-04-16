@@ -5,7 +5,8 @@ from torch.nn import functional as F
 from .types_ import *
 
 
-H=W=8 # TODO: added
+H = W = 8  # TODO: added
+
 
 class Encoder(nn.Module):
   def __init__(
@@ -21,7 +22,7 @@ class Encoder(nn.Module):
             modules.append(
                 nn.Sequential(
                     nn.Conv2d(in_channels, out_channels=h_dim,
-                              kernel_size= 3, stride= 2, padding  = 1),
+                              kernel_size=3, stride=2, padding=1),
                     nn.BatchNorm2d(h_dim),
                     nn.LeakyReLU())
             )
@@ -41,6 +42,10 @@ class Encoder(nn.Module):
       log_var = self.fc_var(result)
 
       return [mu, log_var]
+
+  def freeze_weights(self):
+    for param in self.encoder.parameters():
+      param.requires_grad = False
 
 
 class Decoder(nn.Module):
@@ -162,6 +167,9 @@ class VanillaVAE(BaseVAE):
     def set_decoder(self, decoder_type: DecoderType):
         self._decoder = self.decoders[decoder_type]
     
+    def freeze_encoder(self):
+        self.encoder.freeze_weights()
+
     def forward(self, input: Tensor, **kwargs) -> List[Tensor]:
         mu, log_var = self.encode(input)
         z = self.reparameterize(mu, log_var)
