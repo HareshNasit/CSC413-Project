@@ -44,7 +44,7 @@ class Encoder(nn.Module):
       return [mu, log_var]
 
   def freeze_weights(self):
-    for param in self.encoder.parameters():
+    for param in self.model.parameters():
       param.requires_grad = False
 
 
@@ -119,8 +119,7 @@ class VanillaVAE(BaseVAE):
 
         # Compute hidden patch size
         conv_layer_count = len(hidden_dims)
-        # self.patch_size_hidden = kwargs['patch_size'] // (2**conv_layer_count)
-        self.patch_size_hidden = 8  # TODO: fix
+        self.patch_size_hidden = kwargs['patch_size'] // (2**conv_layer_count)
 
         # Build Encoder
         self.encoder = Encoder(in_channels, latent_dim, hidden_dims, self.patch_size_hidden)
@@ -133,7 +132,7 @@ class VanillaVAE(BaseVAE):
             DecoderType.DOMAIN_X: Decoder(*decoder_params),
             DecoderType.DOMAIN_Y: Decoder(*decoder_params)
         }
-        self._decoder = self.decoders[DecoderType.COMBINED]
+        self.decoder = self.decoders[DecoderType.COMBINED]
 
     def encode(self, input: Tensor) -> List[Tensor]:
         """
@@ -164,14 +163,9 @@ class VanillaVAE(BaseVAE):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         return eps * std + mu
-
-    @property
-    def decoder(self):
-        return self._decoder
     
-    @decoder.setter
     def set_decoder(self, decoder_type: DecoderType):
-        self._decoder = self.decoders[decoder_type]
+        self.decoder = self.decoders[decoder_type]
     
     def freeze_encoder(self):
         self.encoder.freeze_weights()

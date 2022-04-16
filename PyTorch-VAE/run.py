@@ -36,7 +36,9 @@ tb_logger =  TensorBoardLogger(save_dir=config['logging_params']['save_dir'],
 # For reproducibility
 seed_everything(config['exp_params']['manual_seed'], True)
 
-model = vae_models[config['model_params']['name']](**config['model_params'])
+model = vae_models[config['model_params']['name']](**{
+  **config['model_params'], **config['data_params']
+})
 experiment = VAEXperiment(model,
                           config['exp_params'])
 
@@ -44,24 +46,72 @@ experiment = VAEXperiment(model,
 # TODO: we added
 # data = VAEDataset2(**config["data_params"], pin_memory=len(config['trainer_params']['gpus']) != 0)
 # data = VAEDataset3(**config["data_params"], pin_memory=len(config['trainer_params']['gpus']) != 0)
+
+create_runner = lambda: Trainer(
+  logger=tb_logger,
+  callbacks=[
+      LearningRateMonitor(),
+      ModelCheckpoint(save_top_k=2, 
+                      dirpath =os.path.join(tb_logger.log_dir , "checkpoints"), 
+                      monitor= "val_loss",
+                      save_last= True),
+  ],
+  strategy=DDPPlugin(find_unused_parameters=False),
+  **config['trainer_params']
+)
+
+# 1. Train the full VAE
+runner = create_runner()
+
 data = VAEDataset(**config["data_params"], pin_memory=len(config['trainer_params']['gpus']) != 0)
-
 data.setup()
-runner = Trainer(logger=tb_logger,
-                 callbacks=[
-                     LearningRateMonitor(),
-                     ModelCheckpoint(save_top_k=2, 
-                                     dirpath =os.path.join(tb_logger.log_dir , "checkpoints"), 
-                                     monitor= "val_loss",
-                                     save_last= True),
-                 ],
-                 strategy=DDPPlugin(find_unused_parameters=False),
-                 **config['trainer_params'])
-
 
 Path(f"{tb_logger.log_dir}/Samples").mkdir(exist_ok=True, parents=True)
 Path(f"{tb_logger.log_dir}/Reconstructions").mkdir(exist_ok=True, parents=True)
 
 
 print(f"======= Training {config['model_params']['name']} =======")
-runner.fit(experiment, datamodule=data)
+
+runner.fit(experiment, datamodule=data)  # TODO: uncomment
+
+# 2. Freeze the encoder
+model.freeze_encoder()
+
+# 3. Train two decoders
+# 3a. - Domain X
+runner = create_runner()
+
+model.set_decoder(DecoderType.DOMAIN_X)
+experiment_X = VAEXperiment(model,
+                            config['exp_params'])
+
+data_X = VAEDataset(
+  **config["data_params"],
+  pin_memory=len(config['trainer_params']['gpus']) != 0,
+  domain=Domain.X
+)
+data_X.setup()
+
+runner.fit(experiment_X, datamodule=data_X)
+
+# 3b. - Domain Y
+# TODO: do same for Y
+
+# 4. Image to image translation (X -> Y) and (Y -> X)
+# Sample from X
+runner = create_runner()
+
+data_X = VAEDataset(
+  **config["data_params"],
+  pin_memory=len(config['trainer_params']['gpus']) != 0,
+  domain=Domain.X
+)
+data_X.setup()
+
+# Use decoder Y
+model.set_decoder(DecoderType.DOMAIN_Y)
+experiment_X_to_Y = VAEXperiment(
+  model,
+  config['exp_params']
+)
+runner.fit(experiment_X_to_Y, datamodule=data_X)

@@ -13,6 +13,7 @@ import zipfile
 # TODO: we added
 import random
 from torchvision.datasets import MNIST
+from models import Domain 
 
 
 # Add your custom dataset class here
@@ -310,28 +311,32 @@ class VAEDataset2(LightningDataModule):
             pin_memory=self.pin_memory,
         )
 
+
+
 class AppleOrangeDataset(Dataset):
     def __init__(self, 
                  data_path: str, 
                  split: str,
                  transform: Callable,
+                 domain: Domain,
                 **kwargs):
       
         self.transforms = transform
         self.data_dir = Path(data_path)
+        
+        domain_X_path = self.data_dir / ('apple2orange/testA' if split == 'test' else 'apple2orange/trainA')
+        domain_Y_path = self.data_dir / ('apple2orange/testB' if split == 'test' else 'apple2orange/trainB')
 
-        horse_imgs, zebra_imgs = None, None
-        horse_path = self.data_dir / ('apple2orange/testA' if split == 'test' else 'apple2orange/trainA')
-        zebra_path = self.data_dir / ('apple2orange/testB' if split == 'test' else 'apple2orange/trainB')
+        domain_X_imgs, domain_Y_imgs = [], []
+        if domain == Domain.COMBINED:
+          domain_X_imgs = sorted([f for f in domain_X_path.iterdir() if f.suffix == '.jpg'])
+          domain_Y_imgs = sorted([f for f in domain_Y_path.iterdir() if f.suffix == '.jpg'])
+        elif domain == Domain.X:
+          domain_X_imgs = sorted([f for f in domain_X_path.iterdir() if f.suffix == '.jpg'])
+        elif domain == Domain.Y:
+          domain_Y_imgs = sorted([f for f in domain_Y_path.iterdir() if f.suffix == '.jpg'])
  
-        # TODO: naming
-        horse_imgs = sorted([f for f in horse_path.iterdir() if f.suffix == '.jpg'])
-        zebra_imgs = sorted([f for f in zebra_path.iterdir() if f.suffix == '.jpg'])
-
-        # might not need to shuffle as already done by dataloader
-        imgs = horse_imgs + zebra_imgs
-        random.shuffle(imgs)
-        self.imgs = imgs
+        self.imgs = domain_X_imgs + domain_Y_imgs
     
     def __len__(self):
         return len(self.imgs)
@@ -344,7 +349,7 @@ class AppleOrangeDataset(Dataset):
         
         return img, 0.0 # dummy datat to prevent breaking
 
-class VAEDataset3(LightningDataModule):
+class VAEDatasetAppleOrange(LightningDataModule):
     """
     PyTorch Lightning data module 
     Args:
@@ -366,6 +371,7 @@ class VAEDataset3(LightningDataModule):
         patch_size: Union[int, Sequence[int]] = (256, 256),
         num_workers: int = 0,
         pin_memory: bool = False,
+        domain: Domain = Domain.COMBINED,
         **kwargs,
     ):
         super().__init__()
@@ -376,6 +382,7 @@ class VAEDataset3(LightningDataModule):
         self.patch_size = patch_size
         self.num_workers = num_workers
         self.pin_memory = pin_memory
+        self.domain = domain
 
     def setup(self, stage: Optional[str] = None) -> None:
     
@@ -393,17 +400,15 @@ class VAEDataset3(LightningDataModule):
             self.data_dir,
             split='train',
             transform=train_transforms,
-            download=False,
+            domain=self.domain
         )
         
-        # Replace CelebA with your dataset
         self.val_dataset = AppleOrangeDataset(
             self.data_dir,
             split='test',
             transform=val_transforms,
-            download=False,
+            domain=self.domain
         )
-#       ===============================================================
         
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
@@ -414,7 +419,7 @@ class VAEDataset3(LightningDataModule):
             pin_memory=self.pin_memory,
         )
 
-    def val_dataloader(self) -> Union[DataLoader, List[DataLoader]]:
+    def val_dataloader(self) -> DataLoader:
         return DataLoader(
             self.val_dataset,
             batch_size=self.val_batch_size,
@@ -423,7 +428,7 @@ class VAEDataset3(LightningDataModule):
             pin_memory=self.pin_memory,
         )
     
-    def test_dataloader(self) -> Union[DataLoader, List[DataLoader]]:
+    def test_dataloader(self) -> DataLoader:
         return DataLoader(
             self.val_dataset,
             batch_size=144,
