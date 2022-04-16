@@ -11,7 +11,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.utilities.seed import seed_everything
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 # from dataset import VAEDataset, VAEDataset2, VAEDataset3
-from dataset import VAEDatasetMNIST as VAEDataset
+from dataset import VAEDatasetAppleOrange as VAEDataset
 from pytorch_lightning.plugins import DDPPlugin
 
 
@@ -47,18 +47,20 @@ experiment = VAEXperiment(model,
 # data = VAEDataset2(**config["data_params"], pin_memory=len(config['trainer_params']['gpus']) != 0)
 # data = VAEDataset3(**config["data_params"], pin_memory=len(config['trainer_params']['gpus']) != 0)
 
-create_runner = lambda: Trainer(
-  logger=tb_logger,
-  callbacks=[
-      LearningRateMonitor(),
-      ModelCheckpoint(save_top_k=2, 
-                      dirpath =os.path.join(tb_logger.log_dir , "checkpoints"), 
-                      monitor= "val_loss",
-                      save_last= True),
-  ],
-  strategy=DDPPlugin(find_unused_parameters=False),
-  **config['trainer_params']
-)
+def create_runner():
+  runner = Trainer(
+    logger=tb_logger,
+    callbacks=[
+        LearningRateMonitor(),
+        ModelCheckpoint(save_top_k=2, 
+                        dirpath =os.path.join(tb_logger.log_dir , "checkpoints"), 
+                        monitor= "val_loss",
+                        save_last= True),
+    ],
+    strategy=DDPPlugin(find_unused_parameters=False),
+    **config['trainer_params']
+  )
+  return runner
 
 # 1. Train the full VAE
 runner = create_runner()
