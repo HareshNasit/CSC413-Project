@@ -5,17 +5,17 @@ from torch.nn import functional as F
 from .types_ import *
 
 
-H = W = 8  # TODO: added
-
-
 class Encoder(nn.Module):
   def __init__(
         self,
         in_channels: int,
         latent_dim: int,
-        hidden_dims: List
+        hidden_dims: List,
+        patch_size_hidden: int
     ):
       super().__init__()
+
+      self.patch_size_hidden = patch_size_hidden
 
       modules = []
       for h_dim in hidden_dims:
@@ -29,8 +29,8 @@ class Encoder(nn.Module):
             in_channels = h_dim
 
       self.model = nn.Sequential(*modules)
-      self.fc_mu = nn.Linear(hidden_dims[-1]*H*W, latent_dim)
-      self.fc_var = nn.Linear(hidden_dims[-1]*H*W, latent_dim)
+      self.fc_mu = nn.Linear(hidden_dims[-1] * (self.patch_size_hidden**2), latent_dim)
+      self.fc_var = nn.Linear(hidden_dims[-1] * (self.patch_size_hidden**2), latent_dim)
 
   def forward(self, input: Tensor) -> List[Tensor]:
       result = self.model(input)
@@ -53,14 +53,15 @@ class Decoder(nn.Module):
         self,
         out_channels: int,
         latent_dim: int,
-        hidden_dims: List
+        hidden_dims: List,
+        patch_size_hidden: int
     ):
       super().__init__()
 
+      self.patch_size_hidden = patch_size_hidden
+      self.decoder_input = nn.Linear(latent_dim, hidden_dims[0] * (self.patch_size_hidden ** 2))
+
       modules = []
-
-      self.decoder_input = nn.Linear(latent_dim, hidden_dims[0] * H * W)
-
       for i in range(len(hidden_dims) - 1):
           modules.append(
               nn.Sequential(
@@ -93,7 +94,7 @@ class Decoder(nn.Module):
   
   def forward(self, z: Tensor) -> Tensor:
       result = self.decoder_input(z)
-      result = result.view(-1, 512, H, W)  # TODO:
+      result = result.view(-1, 512, self.patch_size_hidden, self.patch_size_hidden)
       
       result = self.decoder(result)
       result = self.final_layer(result)
@@ -116,11 +117,15 @@ class VanillaVAE(BaseVAE):
         if hidden_dims is None:
             hidden_dims = [32, 64, 128, 256, 512]
 
+        # Compute hidden patch size
+        conv_layer_count = len(hidden_dims)
+        self.patch_size_hidden = kwargs['patch_size'] // (2**conv_layer_count)
+
         # Build Encoder
-        self.encoder = Encoder(in_channels, latent_dim, hidden_dims)
+        self.encoder = Encoder(in_channels, latent_dim, hidden_dims, patch_size_hidden)
 
         # Build Decoder
-        decoder_params = [in_channels, latent_dim, list(reversed(hidden_dims))]
+        decoder_params = [in_channels, latent_dim, list(reversed(hidden_dims)), patch_size_hidden]
         self.decoders = {
             DecoderType.COMBINED: Decoder(*decoder_params),
             # TODO: update later
