@@ -18,6 +18,7 @@ class VAEXperiment(pl.LightningModule):
                  vae_model: BaseVAE,
                  params: dict) -> None:
         super(VAEXperiment, self).__init__()
+        self.save_hyperparameters()
 
         self.model = vae_model
         self.params = params

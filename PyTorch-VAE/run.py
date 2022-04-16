@@ -115,10 +115,10 @@ runner.fit(experiment_X, datamodule=data_X)
 domainY_logger = create_logger('domainY')
 runner = create_runner(domainY_logger)
 
-data_X = VAEDataset(
+data_Y = VAEDataset(
   **config["data_params"],
   pin_memory=len(config['trainer_params']['gpus']) != 0,
-  domain=Domain.X
+  domain=Domain.Y
 )
 data_X.setup()
 
@@ -130,6 +130,6 @@ experiment_X_to_Y = VAEXperiment(
   model,
   config['exp_params']
 )
-runner.fit(experiment_X_to_Y, datamodule=data_X)
+runner.fit(experiment_X_to_Y, datamodule=data_Y)
 
 
