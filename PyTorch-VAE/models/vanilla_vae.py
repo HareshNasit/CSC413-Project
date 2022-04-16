@@ -119,13 +119,14 @@ class VanillaVAE(BaseVAE):
 
         # Compute hidden patch size
         conv_layer_count = len(hidden_dims)
-        self.patch_size_hidden = kwargs['patch_size'] // (2**conv_layer_count)
+        # self.patch_size_hidden = kwargs['patch_size'] // (2**conv_layer_count)
+        self.patch_size_hidden = 8  # TODO: fix
 
         # Build Encoder
-        self.encoder = Encoder(in_channels, latent_dim, hidden_dims, patch_size_hidden)
+        self.encoder = Encoder(in_channels, latent_dim, hidden_dims, self.patch_size_hidden)
 
         # Build Decoder
-        decoder_params = [in_channels, latent_dim, list(reversed(hidden_dims)), patch_size_hidden]
+        decoder_params = [in_channels, latent_dim, list(reversed(hidden_dims)), self.patch_size_hidden]
         self.decoders = {
             DecoderType.COMBINED: Decoder(*decoder_params),
             # TODO: update later
