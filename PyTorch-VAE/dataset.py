@@ -323,7 +323,7 @@ class AppleOrangeDataset(Dataset):
       
         self.transforms = transform
         self.data_dir = Path(data_path)
-        
+        print(self.data_dir)
         domain_X_path = self.data_dir / ('apple2orange/testA' if split == 'test' else 'apple2orange/trainA')
         domain_Y_path = self.data_dir / ('apple2orange/testB' if split == 'test' else 'apple2orange/trainB')
 

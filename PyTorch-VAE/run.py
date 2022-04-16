@@ -33,6 +33,12 @@ with open(args.filename, 'r') as file:
 tb_logger =  TensorBoardLogger(save_dir=config['logging_params']['save_dir'],
                                name=config['model_params']['name'],)
 
+def create_logger(name):
+  logger = TensorBoardLogger(save_dir=config['logging_params']['save_dir'],
+                               name=name,)
+  return logger
+
+
 # For reproducibility
 seed_everything(config['exp_params']['manual_seed'], True)
 
@@ -47,13 +53,13 @@ experiment = VAEXperiment(model,
 # data = VAEDataset2(**config["data_params"], pin_memory=len(config['trainer_params']['gpus']) != 0)
 # data = VAEDataset3(**config["data_params"], pin_memory=len(config['trainer_params']['gpus']) != 0)
 
-def create_runner():
+def create_runner(logger):
   runner = Trainer(
-    logger=tb_logger,
+    logger=logger,
     callbacks=[
         LearningRateMonitor(),
         ModelCheckpoint(save_top_k=2, 
-                        dirpath =os.path.join(tb_logger.log_dir , "checkpoints"), 
+                        dirpath =os.path.join(logger.log_dir , "checkpoints"), 
                         monitor= "val_loss",
                         save_last= True),
     ],
@@ -63,13 +69,14 @@ def create_runner():
   return runner
 
 # 1. Train the full VAE
-runner = create_runner()
+full_logger = create_logger("full-VAE")
+runner = create_runner(full_logger)
 
 data = VAEDataset(**config["data_params"], pin_memory=len(config['trainer_params']['gpus']) != 0)
 data.setup()
 
-Path(f"{tb_logger.log_dir}/Samples").mkdir(exist_ok=True, parents=True)
-Path(f"{tb_logger.log_dir}/Reconstructions").mkdir(exist_ok=True, parents=True)
+Path(f"{full_logger.log_dir}/Samples").mkdir(exist_ok=True, parents=True)
+Path(f"{full_logger.log_dir}/Reconstructions").mkdir(exist_ok=True, parents=True)
 
 
 print(f"======= Training {config['model_params']['name']} =======")
@@ -81,7 +88,8 @@ model.freeze_encoder()
 
 # 3. Train two decoders
 # 3a. - Domain X
-runner = create_runner()
+domainX_logger = create_logger("domainX")
+runner = create_runner(domainX_logger)
 
 model.set_decoder(DecoderType.DOMAIN_X)
 experiment_X = VAEXperiment(model,
@@ -94,6 +102,9 @@ data_X = VAEDataset(
 )
 data_X.setup()
 
+Path(f"{domainX_logger.log_dir}/Samples").mkdir(exist_ok=True, parents=True)
+Path(f"{domainX_logger.log_dir}/Reconstructions").mkdir(exist_ok=True, parents=True)
+
 runner.fit(experiment_X, datamodule=data_X)
 
 # 3b. - Domain Y
@@ -101,7 +112,8 @@ runner.fit(experiment_X, datamodule=data_X)
 
 # 4. Image to image translation (X -> Y) and (Y -> X)
 # Sample from X
-runner = create_runner()
+domainY_logger = create_logger('domainY')
+runner = create_runner(domainY_logger)
 
 data_X = VAEDataset(
   **config["data_params"],
@@ -110,6 +122,8 @@ data_X = VAEDataset(
 )
 data_X.setup()
 
+Path(f"{domainY_logger.log_dir}/Samples").mkdir(exist_ok=True, parents=True)
+Path(f"{domainY_logger.log_dir}/Reconstructions").mkdir(exist_ok=True, parents=True)
 # Use decoder Y
 model.set_decoder(DecoderType.DOMAIN_Y)
 experiment_X_to_Y = VAEXperiment(
@@ -117,3 +131,5 @@ experiment_X_to_Y = VAEXperiment(
   config['exp_params']
 )
 runner.fit(experiment_X_to_Y, datamodule=data_X)
+
+
