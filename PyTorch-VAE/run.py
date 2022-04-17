@@ -120,7 +120,8 @@ data_Y = VAEDataset(
   pin_memory=len(config['trainer_params']['gpus']) != 0,
   domain=Domain.Y
 )
-data_X.setup()
+data_Y.setup()
+
 
 Path(f"{domainY_logger.log_dir}/Samples").mkdir(exist_ok=True, parents=True)
 Path(f"{domainY_logger.log_dir}/Reconstructions").mkdir(exist_ok=True, parents=True)
