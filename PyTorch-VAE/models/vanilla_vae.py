@@ -3,6 +3,7 @@ from models import BaseVAE
 from torch import nn
 from torch.nn import functional as F
 from .types_ import *
+from pytorch_msssim import ms_ssim
 
 
 class Encoder(nn.Module):
@@ -191,8 +192,9 @@ class VanillaVAE(BaseVAE):
         log_var = args[3]
 
         kld_weight = kwargs['M_N'] # Account for the minibatch samples from the dataset
-        recons_loss =F.mse_loss(recons, input)
-
+        loss_l2 = F.mse_loss(recons, input)
+        loss_ms_ssim = 1 - ms_ssim(recons, input, data_range=1, size_average=True)
+        recons_loss = loss_l2 + loss_ms_ssim
 
         kld_loss = torch.mean(-0.5 * torch.sum(1 + log_var - mu ** 2 - log_var.exp(), dim = 1), dim = 0)
 
