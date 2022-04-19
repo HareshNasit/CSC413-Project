@@ -27,6 +27,8 @@
 \usepackage{microtype}      % microtypography
 \usepackage{xcolor}         % colors
 \usepackage{amsmath}
+\usepackage{algorithm}      % algorithms
+\usepackage{algpseudocode}  % algorithms
 
 \title{Formatting Instructions For NeurIPS 2021}
 
@@ -109,6 +111,44 @@
 \end{equation}
 
 % TODO: algo box
+\begin{algorithm}[H]
+\caption{The pre-training procedure}\label{alg:pre-train}
+\begin{algorithmic}
+  \State{// $X, Y \gets \text{loadDataset}()$}
+  \State{$M \gets \text{new VAE}()$}
+  \State{}
+  \State{$E \gets \text{new Encoder}()$}
+  \State{$M\text{.encoder} \gets E$}
+  \State{}
+  \State{$D \gets \text{new Decoder}()$}
+  \State{$M\text{.decoder} \gets D$}
+  \State{}
+  \State{$M\text{.train}(X \cup Y)$}
+  \State{}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{The training procedure}\label{alg:train}
+\begin{algorithmic}
+  \State{// $X, Y \gets \text{loadDataset}()$}
+  \State{$D_X \gets \text{new Decoder}()$}
+  \State{$M\text{.decoder} = D_X$}
+  \State{}
+  \State{$M$.encoder.freeze()}
+  \State{}
+  \State{$M\text{.train}(X)$}
+  \end{algorithmic}
+\end{algorithm}
+
+
+\begin{algorithm}[H]
+\caption{The evaluation procedure}\label{alg:eval}
+\begin{algorithmic}
+  \State{$y \gets SampleFrom(Y)$}
+  \State{$M\text{.predict}(y)$}
+\end{algorithmic}
+\end{algorithm}
 
 % Template:
 
