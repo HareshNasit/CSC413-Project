@@ -29,6 +29,10 @@
 \usepackage{amsmath}
 \usepackage{algorithm}      % algorithms
 \usepackage{algpseudocode}  % algorithms
+\usepackage[english]{babel} % citations
+\usepackage{natbib}         % citations
+\bibliographystyle{abbrvnat}
+\setcitestyle{authoryear,open={(},close={)}} %Citation-related commands
 
 \title{Formatting Instructions For NeurIPS 2021}
 
@@ -72,6 +76,7 @@
 }
 
 \begin{document}
+\bibliography{sample}
 
 \maketitle
 
@@ -110,7 +115,6 @@
   + \mathcal{L}_{\text{Reconstruction}}
 \end{equation}
 
-% TODO: algo box
 \begin{algorithm}[H]
 \caption{The pre-training procedure}\label{alg:pre-train}
 \begin{algorithmic}
@@ -149,6 +153,10 @@
   \State{$M\text{.predict}(y)$}
 \end{algorithmic}
 \end{algorithm}
+
+\cite{HitA}
+\citet{HitA}
+\citep{HitA}
 
 % Template:
 
