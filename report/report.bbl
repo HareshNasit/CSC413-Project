@@ -5,12 +5,8 @@
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
 
-\bibitem[Mara~Thiene(2008)]{HitA}
-R.~S. Mara~Thiene.
-\newblock Hiking in the alps: exploring substitution patterns of hiking
-  destinations.
-\newblock \emph{Tourism Economics}, 2008.
-\newblock URL
-  \url{https://journals-sagepub-com.ezproxy.is.ed.ac.uk/doi/pdf/10.5367/000000008784460445?fbclid=IwAR1iYcJu-QMM6pQ6VFwzvtsJFD11syE7yPmOZetTjb19wZxaVvsylJvcCeg}.
+\bibitem[Liu et~al.(2017)Liu, Breuel, and Kautz]{liu}
+M.-Y. Liu, T.~Breuel, and J.~Kautz.
+\newblock Unsupervised image-to-image translation networks, 2017.
 
 \end{thebibliography}
