@@ -26,6 +26,7 @@
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
 \usepackage{xcolor}         % colors
+\usepackage{amsmath}
 
 \title{Formatting Instructions For NeurIPS 2021}
 
@@ -71,6 +72,45 @@
 \begin{document}
 
 \maketitle
+
+% Actual work:
+% TODO: test all citations
+\begin{equation}
+  \mathcal{L}_{\text{Variational}}
+    = \frac{1}{\left|\mathcal{B}\right|} \sum_{i \in \mathcal{B}} \sum_{j=1}^J \left(
+      1
+      + \log\left(
+        \left(
+          \sigma_j^{(i)}
+        \right)^2
+      \right)
+      - \left(\mu_j^{(i)}\right)^2 
+      - \left(\sigma_j^{(i)}\right)^2 
+    \right)
+\end{equation}
+
+\begin{equation}
+  \mathcal{L}_{\text{Reconstruction}}
+    = \frac{1}{\left|\mathcal{B}\right|} \sum_{i \in \mathcal{B}}
+    \text{MSE}\left(
+      \mathbf{u}^{(i)},
+      \mathbf{\tilde{u}}^{(i)}
+    \right)
+    + \text{MS-SSIM}\left(
+      \mathbf{u}^{(i)},
+      \mathbf{\tilde{u}}^{(i)}
+    \right)
+\end{equation}
+
+\begin{equation}
+  \mathcal{L}
+  = \mathcal{L}_{\text{Variational}}
+  + \mathcal{L}_{\text{Reconstruction}}
+\end{equation}
+
+% TODO: algo box
+
+% Template:
 
 \begin{abstract}
   The abstract paragraph should be indented \nicefrac{1}{2}~inch (3~picas) on
