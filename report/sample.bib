@@ -1,7 +1,7 @@
 Generated using https://www.bibtex.com/c/arxiv-to-bibtex-converter/
 
-@Comment [1] in Google Docs
-@ARTICLE{Liu2017-wl,
+@Comment [1] and [4] in Google Docs
+@ARTICLE{liu,
   title         = "Unsupervised image-to-image translation networks",
   author        = "Liu, Ming-Yu and Breuel, Thomas and Kautz, Jan",
   abstract      = "Unsupervised image-to-image translation aims at learning a
@@ -101,12 +101,212 @@ Generated using https://www.bibtex.com/c/arxiv-to-bibtex-converter/
   eprint        = "1703.10593"
 }
 
-
-@Comment [4] in Google Docs
 @Comment [5] in Google Docs
+@ARTICLE{liu2,
+  title         = "Multiple Style Transfer via Variational {AutoEncoder}",
+  author        = "Liu, Zhi-Song and Kalogeiton, Vicky and Cani, Marie-Paule",
+  abstract      = "Modern works on style transfer focus on transferring style
+                   from a single image. Recently, some approaches study
+                   multiple style transfer; these, however, are either too slow
+                   or fail to mix multiple styles. We propose ST-VAE, a
+                   Variational AutoEncoder for latent space-based style
+                   transfer. It performs multiple style transfer by projecting
+                   nonlinear styles to a linear latent space, enabling to merge
+                   styles via linear interpolation before transferring the new
+                   style to the content image. To evaluate ST-VAE, we
+                   experiment on COCO for single and multiple style transfer.
+                   We also present a case study revealing that ST-VAE
+                   outperforms other methods while being faster, flexible, and
+                   setting a new path for multiple style transfer.",
+  month         =  oct,
+  year          =  2021,
+  copyright     = "http://creativecommons.org/licenses/by/4.0/",
+  archivePrefix = "arXiv",
+  primaryClass  = "cs.CV",
+  eprint        = "2110.07375"
+}
+
 @Comment [6] in Google Docs
+@ARTICLE{isola,
+  title         = "Image-to-image translation with conditional adversarial
+                   networks",
+  author        = "Isola, Phillip and Zhu, Jun-Yan and Zhou, Tinghui and Efros,
+                   Alexei A",
+  abstract      = "We investigate conditional adversarial networks as a
+                   general-purpose solution to image-to-image translation
+                   problems. These networks not only learn the mapping from
+                   input image to output image, but also learn a loss function
+                   to train this mapping. This makes it possible to apply the
+                   same generic approach to problems that traditionally would
+                   require very different loss formulations. We demonstrate
+                   that this approach is effective at synthesizing photos from
+                   label maps, reconstructing objects from edge maps, and
+                   colorizing images, among other tasks. Indeed, since the
+                   release of the pix2pix software associated with this paper,
+                   a large number of internet users (many of them artists) have
+                   posted their own experiments with our system, further
+                   demonstrating its wide applicability and ease of adoption
+                   without the need for parameter tweaking. As a community, we
+                   no longer hand-engineer our mapping functions, and this work
+                   suggests we can achieve reasonable results without
+                   hand-engineering our loss functions either.",
+  month         =  nov,
+  year          =  2016,
+  copyright     = "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  archivePrefix = "arXiv",
+  primaryClass  = "cs.CV",
+  eprint        = "1611.07004"
+}
+
 @Comment [7] in Google Docs
+@ARTICLE{larsen,
+  title         = "Autoencoding beyond pixels using a learned similarity metric",
+  author        = "Larsen, Anders Boesen Lindbo and S{\o}nderby, S{\o}ren Kaae
+                   and Larochelle, Hugo and Winther, Ole",
+  abstract      = "We present an autoencoder that leverages learned
+                   representations to better measure similarities in data
+                   space. By combining a variational autoencoder with a
+                   generative adversarial network we can use learned feature
+                   representations in the GAN discriminator as basis for the
+                   VAE reconstruction objective. Thereby, we replace
+                   element-wise errors with feature-wise errors to better
+                   capture the data distribution while offering invariance
+                   towards e.g. translation. We apply our method to images of
+                   faces and show that it outperforms VAEs with element-wise
+                   similarity measures in terms of visual fidelity. Moreover,
+                   we show that the method learns an embedding in which
+                   high-level abstract visual features (e.g. wearing glasses)
+                   can be modified using simple arithmetic.",
+  month         =  dec,
+  year          =  2015,
+  copyright     = "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  archivePrefix = "arXiv",
+  primaryClass  = "cs.LG",
+  eprint        = "1512.09300"
+}
+
 @Comment [8] in Google Docs
+@ARTICLE{zhao,
+  title         = "Unpaired image-to-image translation via latent energy
+                   transport",
+  author        = "Zhao, Yang and Chen, Changyou",
+  abstract      = "Image-to-image translation aims to preserve source contents
+                   while translating to discriminative target styles between
+                   two visual domains. Most works apply adversarial learning in
+                   the ambient image space, which could be computationally
+                   expensive and challenging to train. In this paper, we
+                   propose to deploy an energy-based model (EBM) in the latent
+                   space of a pretrained autoencoder for this task. The
+                   pretrained autoencoder serves as both a latent code
+                   extractor and an image reconstruction worker. Our model,
+                   LETIT, is based on the assumption that two domains share the
+                   same latent space, where latent representation is implicitly
+                   decomposed as a content code and a domain-specific style
+                   code. Instead of explicitly extracting the two codes and
+                   applying adaptive instance normalization to combine them,
+                   our latent EBM can implicitly learn to transport the source
+                   style code to the target style code while preserving the
+                   content code, an advantage over existing image translation
+                   methods. This simplified solution is also more efficient in
+                   the one-sided unpaired image translation setting.
+                   Qualitative and quantitative comparisons demonstrate
+                   superior translation quality and faithfulness for content
+                   preservation. Our model is the first to be applicable to
+                   1024$\times$1024-resolution unpaired image translation to
+                   the best of our knowledge.",
+  month         =  dec,
+  year          =  2020,
+  copyright     = "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  archivePrefix = "arXiv",
+  primaryClass  = "cs.CV",
+  eprint        = "2012.00649"
+}
+
+
 @Comment [9] in Google Docs
+@ARTICLE{jha,
+  title         = "Disentangling factors of variation with cycle-consistent
+                   variational auto-encoders",
+  author        = "Jha, Ananya Harsh and Anand, Saket and Singh, Maneesh and
+                   Veeravasarapu, V S R",
+  abstract      = "Generative models that learn disentangled representations
+                   for different factors of variation in an image can be very
+                   useful for targeted data augmentation. By sampling from the
+                   disentangled latent subspace of interest, we can efficiently
+                   generate new data necessary for a particular task. Learning
+                   disentangled representations is a challenging problem,
+                   especially when certain factors of variation are difficult
+                   to label. In this paper, we introduce a novel architecture
+                   that disentangles the latent space into two complementary
+                   subspaces by using only weak supervision in form of pairwise
+                   similarity labels. Inspired by the recent success of
+                   cycle-consistent adversarial architectures, we use
+                   cycle-consistency in a variational auto-encoder framework.
+                   Our non-adversarial approach is in contrast with the recent
+                   works that combine adversarial training with auto-encoders
+                   to disentangle representations. We show compelling results
+                   of disentangled latent subspaces on three datasets and
+                   compare with recent works that leverage adversarial
+                   training.",
+  month         =  apr,
+  year          =  2018,
+  copyright     = "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  archivePrefix = "arXiv",
+  primaryClass  = "cs.CV",
+  eprint        = "1804.10469"
+}
+
 @Comment [10] in Google Docs
+@ARTICLE{kingma,
+  title         = "{Auto-Encoding} Variational Bayes",
+  author        = "Kingma, Diederik P and Welling, Max",
+  abstract      = "How can we perform efficient inference and learning in
+                   directed probabilistic models, in the presence of continuous
+                   latent variables with intractable posterior distributions,
+                   and large datasets? We introduce a stochastic variational
+                   inference and learning algorithm that scales to large
+                   datasets and, under some mild differentiability conditions,
+                   even works in the intractable case. Our contributions is
+                   two-fold. First, we show that a reparameterization of the
+                   variational lower bound yields a lower bound estimator that
+                   can be straightforwardly optimized using standard stochastic
+                   gradient methods. Second, we show that for i.i.d. datasets
+                   with continuous latent variables per datapoint, posterior
+                   inference can be made especially efficient by fitting an
+                   approximate inference model (also called a recognition
+                   model) to the intractable posterior using the proposed lower
+                   bound estimator. Theoretical advantages are reflected in
+                   experimental results.",
+  month         =  dec,
+  year          =  2013,
+  copyright     = "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  archivePrefix = "arXiv",
+  primaryClass  = "stat.ML",
+  eprint        = "1312.6114"
+}
+
 @Comment [11] in Google Docs
+@ARTICLE{zhao2,
+  title         = "Loss functions for neural networks for image processing",
+  author        = "Zhao, Hang and Gallo, Orazio and Frosio, Iuri and Kautz, Jan",
+  abstract      = "Neural networks are becoming central in several areas of
+                   computer vision and image processing and different
+                   architectures have been proposed to solve specific problems.
+                   The impact of the loss layer of neural networks, however,
+                   has not received much attention in the context of image
+                   processing: the default and virtually only choice is L2. In
+                   this paper, we bring attention to alternative choices for
+                   image restoration. In particular, we show the importance of
+                   perceptually-motivated losses when the resulting image is to
+                   be evaluated by a human observer. We compare the performance
+                   of several losses, and propose a novel, differentiable error
+                   function. We show that the quality of the results improves
+                   significantly with better loss functions, even when the
+                   network architecture is left unchanged.",
+  month         =  nov,
+  year          =  2015,
+  copyright     = "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  archivePrefix = "arXiv",
+  primaryClass  = "cs.CV",
+  eprint        = "1511.08861"
+}
