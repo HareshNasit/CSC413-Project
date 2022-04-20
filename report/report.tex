@@ -145,7 +145,7 @@ where $\alpha$ is used to account for different learning rates between the two l
 \textbf{Training 1: Encoder.} Our architecture combines the components of the standard convolutional VAE (Figure \ref{fig:pretrain}). Both domains share a single encoder $E$, which is trained in concord with a shared decoder $D$. Its purpose is to establish a shared latent space where, based on the shared latent space assumption, images with similar content from different domains will be mapped to a similar point.
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\linewidth]{report/assets/pretrain.png}
+  \includegraphics[width=0.7\linewidth]{report/assets/pretrain.png}
   \caption{Learning a shared latent representation for both image domains.}
   \label{fig:pretrain}
 \end{figure}
@@ -169,7 +169,7 @@ where $\alpha$ is used to account for different learning rates between the two l
 \textbf{Training 2: Domain-specific decoders.} Once the encoder is trained, the encoder weights are frozen to fix the mapping to a shared latent space. Then, a separate decoder is trained for each domain (Figure \ref{fig:train}). For example, if we wish to map between images of apples and oranges, $E$ would encode images of both, apples and oranges, and there would be a dedicated decoder for each apples and oranges, respectively. 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\linewidth]{report/assets/train.png}
+  \includegraphics[width=0.7\linewidth]{report/assets/train.png}
   \caption{Learning the decoder $D_X$ for domain $X$ that uses embeddings from the shared latent space.}
   \label{fig:train}
 \end{figure}
@@ -190,7 +190,7 @@ where $\alpha$ is used to account for different learning rates between the two l
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.8\linewidth]{report/assets/eval.png}
+  \includegraphics[width=0.7\linewidth]{report/assets/eval.png}
   \caption{Performing style transfer from domain $Y$ to $X$ using the shared encoder $E$ and domain-specific decoder $D_X$.}
   \label{fig:eval}
 \end{figure}
@@ -200,15 +200,6 @@ where $\alpha$ is used to account for different learning rates between the two l
 %     \State{$M\text{.predict}(y \sim Y)$}
 %   \end{algorithmic}
 % \end{algorithm}
-
-\subsection{Training details}
-\subsubsection{Layer dimensions}
-The shared encoder E and the domain-specific decoders $D_x$ and $D_y$ have the same size. Both the encoder and decoders are 5-layer deep with the following hidden sizes: 32, 64, 128, 256 and 512. The latent representation was a 256-dimensional vector. Each encoder and decoder layer included, in sequence, a convolution or transposed convolution, batch normalization, and the Leaky ReLU activation function. We use the Adam optimizer with a batch size of 64 and $\gamma = 0.95$. Hyperparameters used in the appendix.
-
-\subsubsection{Datasets}
-We trained the model on the \texttt{apple2orange}, \texttt{summer2winter\_yosemite} and \texttt{horse2zebra} datasets. The images were split into domain-specific (i.e. apple and orange) datasets. The domain-specific datasets were used to train domain-specific decoders, and the combined domain dataset was used to train the shared encoder. The images used were of dimensions $256\times256$.
-\subsubsection{Training}
-The model was trained on Google Colab using a single NVIDIA Tesla K10 GPU. The shared encoder and domain-specific decoders were trained for a maximum of 70 epochs, respectively. The training duration was approximately 80 minutes.
 
 \section{Experiments}
 We performed image translation experiments using three different datasets. The hyperparameters used to train on all the datasets can be found in Table \ref{tab:hyperparams}. The model results in translations that have some characteristics of the target domain, but the outputs still have blurry edges and lack clarity.
@@ -237,8 +228,16 @@ A more complex encoder, such as the one proposed by \citet{liu}, could learn a b
 
 \newpage
 \appendix
-\section{Appendix}
+\section*{Appendix}
 \renewcommand{\thesubsection}{\Alph{subsection}}
+\subsection{Training details}
+\subsubsection{Layer dimensions}
+The shared encoder E and the domain-specific decoders $D_x$ and $D_y$ have the same size. Both the encoder and decoders are 5-layer deep with the following hidden sizes: 32, 64, 128, 256 and 512. The latent representation was a 256-dimensional vector. Each encoder and decoder layer included, in sequence, a convolution or transposed convolution, batch normalization, and the Leaky ReLU activation function. We use the Adam optimizer with a batch size of 64 and $\gamma = 0.95$. Hyperparameters used in the appendix.
+
+\subsubsection{Datasets}
+We trained the model on the \texttt{apple2orange}, \texttt{summer2winter\_yosemite} and \texttt{horse2zebra} datasets. The images were split into domain-specific (i.e. apple and orange) datasets. The domain-specific datasets were used to train domain-specific decoders, and the combined domain dataset was used to train the shared encoder. The images used were of dimensions $256\times256$.
+\subsubsection{Training}
+The model was trained on Google Colab using a single NVIDIA Tesla K10 GPU. The shared encoder and domain-specific decoders were trained for a maximum of 70 epochs, respectively. The training duration was approximately 80 minutes.
 \subsection{Hyperparameters}
 \begin{table}[H]
   \caption{The choice of hyperparameters}
@@ -538,7 +537,7 @@ The team collaborated closely across all phases of the project, including ideati
 % figure width as a multiple of the line width as in the example below:
 % \begin{verbatim}
 %   \usepackage[pdftex]{graphicx} ...
-%   \includegraphics[width=0.8\linewidth]{myfile.pdf}
+%   \includegraphics[width=0.7\linewidth]{myfile.pdf}
 % \end{verbatim}
 % See Section 4.4 in the graphics bundle documentation
 % (\url{http://mirrors.ctan.org/macros/latex/required/graphics/grfguide.pdf})
