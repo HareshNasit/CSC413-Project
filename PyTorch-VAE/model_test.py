@@ -25,23 +25,17 @@ exp_params = {
 }
 
 full_model = VAEXperiment(VanillaVAE(
-    # in_channels=1,
-    in_channels=3,  # TODO: put back
-    # latent_dim=128, 
+    in_channels=3,
     latent_dim=128,
     hidden_dims=[32, 64, 128, 256, 512],
     patch_size=256
-    # hidden_dims=[32, 64, 128]
 ), exp_params)
 
 apple_model = VAEXperiment(VanillaVAE(
-    # in_channels=1,
-    in_channels=3,  # TODO: put back
-    # latent_dim=128, 
+    in_channels=3,
     latent_dim=128,
     hidden_dims=[32, 64, 128, 256, 512],
     patch_size=256
-    # hidden_dims=[32, 64, 128]
 ), exp_params)
 
 # load checkpoints
