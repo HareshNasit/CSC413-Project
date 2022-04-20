@@ -236,13 +236,38 @@ Our VAE architecture performs worse than CycleGAN or the related architecture pr
 
 A more complex encoder, such as the one proposed by \citet{liu}, could learn a better representation of the domains and thus produce better translations. Another way to produce higher-quality images would be to replace our standard VAE architecture with a hierarchical VAE or VQ-VAE which has been shown to produce higher quality reconstructions. In addition, a more-informed loss function could improve quality. For instance, similar to \citet{liu}, a loss term based on a discriminator network could be used for translated images.
 
-
-% Note: citations work like this:
-% \cite{liu}
-% \citet{liu}
-% \citep{liu}
-
 \bibliography{sample}
+
+\section*{Appendix}
+\renewcommand{\thesubsection}{\Alph{subsection}}
+\subsection{Hyperparameters}
+\begin{table}[H]
+  \caption{The choice of hyperparameters}
+  \label{sample-table}
+  \centering
+  \begin{tabular}{ll}
+    \toprule
+    Hyperparameter     & Value\\
+    \midrule
+    Training batch size & 64\\
+    Validation batch size & 64\\
+    Learning rate & 0.0005\\
+    $\gamma$ (Adam) & 0.95\\
+    $\alpha\ (\mathcal{L})$ & 0.00025\\
+    \bottomrule
+  \end{tabular}
+  \label{tab:hyperparams}
+\end{table}
+\subsection{Individual contributions}
+The team collaborated closely across all phases of the project, including ideation, research, implementation, evaluation and writing. 
+
+Adit experimented with hyperparameters and trained all the models that were used to generate the samples presented in the report.
+
+Haresh helped to implement the model. He contributed to the Abstract, Introduction, Training details, Experiments, and Conclusion sections of this report.
+
+Filip led live coding sessions held by our group, created diagrams from sketches, referenced research in the Abstract, Introduction and Related works sections. He was also responsible for the bibliography.
+
+
 
 % Template:
 \newpage
