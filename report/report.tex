@@ -58,7 +58,7 @@
   % \texttt{hippo@cs.cranberry-lemon.edu} \\
   % examples of more authors
   \And
-  Harsh Nasit \\
+  Haresh Nasit \\
 %   University of Toronto\\
   % Address \\
   % \texttt{email} \\
@@ -78,15 +78,12 @@
   Image-to-image translation is a computer vision problem where an image is mapped from one domain to another. In the supervised scenario, the dataset consists of perfectly-paired image data. However, such data is either hard to find or simply does not exist \citep{zhu}. Therefore, we focus on the unsupervised setting, where a joint distribution of images across two domains is learnt using the marginal distributions – the images in individual domains \citep{liu}. We propose a model that builds on the shared latent space assumption and uses domain-specific decoders and readily extends to more than two different domains. The implementation is available \href{https://github.com/HareshNasit/CSC413-Project}{here}.
 \end{abstract}
 \section{Introduction}
-At a high level, image-to-image translation aims to capture the characteristics of one image collection and determine how these could be translated into another image collection \citep{zhu}. Mathematically, the goal is to learn a mapping $G: X \rightarrow Y$, where X is the source and Y the target domain.
+Image-to-image translation aims to capture the characteristics of one image collection and determine how these could be translated into another image collection \citep{zhu}. Mathematically, the goal is to learn a mapping $G: X \rightarrow Y$, where X is the source and Y the target domain. Image-to-image translation includes many computer vision problems, such as super-resolution, colorization and style transfer \citep{liu}. 
+% Style transfer has various applications in photo and video editing, customized gaming styles and commercial art. Transfering styles between images is a hard image processing task because it is difficult to represent semantic information such as image texture.
 
-Image-to-image translation includes many computer vision problems, such as super-resolution, colorization and style transfer \citep{liu}. Style transfer has various applications in photo and video editing, customized gaming styles and commercial art. Transfering styles between images is a hard image processing task because it is difficult to represent semantic information such as image texture.
+Many efforts were put into the supervised setting, where models learn image-to-image translation across two domains using perfectly-paired images \citep{zhu}. However, obtaining paired data is often difficult and expensive, and sometimes impossible \citep{zhu}. For example, to learn the translation from photographs to images styled as Monet paintings, the supervised setting would require pairs of real-life images and the corresponding Monet paintings – an infeasible task. Therefore, we focus on unsupervised algorithms, which map between domains without paired examples.
 
-Many efforts were put into the supervised setting, where models learn image-to-image translation across two domains using perfectly-paired images \citep{zhu}. However, obtaining paired data is often difficult and expensive, and sometimes impossible \citep{zhu}. For example, to learn the translation from photographs to images styled as Monet paintings, the supervised setting would require pairs of real-life images and the corresponding Monet paintings – an infeasible task. Therefore, we focus on unsupervised algorithms that map between domains without paired examples.
-
-From a probabilistic perspective, the aim is to learn a joint distribution of images between two different domains, where each domain consists of images from a marginal distribution \citep{liu}. However, there are infinitely many such joint distributions \citep{liu}. To address this problem, we can add more structure to the objective \citep{zhu} or make assumptions about the structure of the joint distribution \citep{liu}.
-
-For example, the CycleGAN model resolves this by training two mappings $G: X \rightarrow Y$ and $F: Y \rightarrow X$, and updating the objective to enforce $F(G(x)) \approx x$ and $G(F(y)) \approx y$ \citep{zhu}. By contrast, \citet{liu} assume a shared latent space, where a pair of corresponding images from different domains is mapped to the same latent representation.
+Probabilistically, the aim is to learn a joint distribution of images between two different domains, where each domain consists of images from a marginal distribution \citep{liu}. However, there are infinitely many such joint distributions \citep{liu}. To address this problem, we can add more structure to the objective \citep{zhu} or make assumptions about the structure of the joint distribution \citep{liu}. CycleGAN achieves this by training two mappings $G: X \rightarrow Y$ and $F: Y \rightarrow X$, and updating the objective to enforce $F(G(x)) \approx x$ and $G(F(y)) \approx y$ \citep{zhu}. By contrast, \citet{liu} assume a shared latent space, where corresponding images from different domains are mapped to the same latent representation.
 
 Inspired by the stable training and meaningful encodings characteristic of variational autoencoder (VAE) models, we continue in the latter vein. We propose a model that leverages the shared latent space assumption but is simpler than the model proposed by \citet{liu}. While our model does not outperform theirs, we propose future directions that could bring our architecture to fruition.
 
@@ -95,7 +92,7 @@ Inspired by the stable training and meaningful encodings characteristic of varia
 
 \textbf{GANs.} CycleGAN builds on the successful GAN architecture by introducing cycle-consistency. This constrains the image-to-image translation problem and encourages meaningful translations \citep{zhu}.
 
-\textbf{VAEs.} Several methods use VAEs in the context of image-to-image translation or style transfer. ST-VAE performs multiple style transfer by projecting styles to a linear latent space and merging them using linear interpolation \citep{liu2}. \citet{kazemi} propose a framework that explicitly models two representations – one for image content and another for style. \citet{larsen} propose VAE-GAN, which combines a VAE and the discriminator from the GAN architecture. Finally, \citet{jha} apply the cycle-consistency idea to the VAE setting.
+\textbf{VAEs.} Several methods use VAEs in the context of image-to-image translation. ST-VAE projects styles to a linear latent space and merges them using linear interpolation \citep{liu2}. \citet{kazemi} propose a framework that models separate representations for image content and style. \citet{larsen} propose VAE-GAN, which combines a VAE and the discriminator from the GAN architecture. Finally, \citet{jha} apply the cycle-consistency idea to VAEs.
 
 \textbf{VAEs and Shared latent representation.} Several research efforts establish a shared latent space. \citet{zhao} propose a mapping between the two latent spaces corresponding to the two domains. Perhaps closest to our approach, \citet{liu} share the latent space z between the two domains by sharing some weights of domain-specific encoders and decoders. Our simplified architecture achieves the same using a single, shared encoder.
 
@@ -103,7 +100,7 @@ Inspired by the stable training and meaningful encodings characteristic of varia
 \subsection{Objective}
 The objective adapts the vanilla VAE objective that consists of a variational and a reconstruction term.
 \subsubsection{Variational loss}
-The variational loss term regularizes the latent space. It captures the KL divergence between the approximated posterior and the prior distribution. The posterior represents the \say{encoder} distribution, and the prior represents the family of distribution the encoder distribution should belong to. Similar to the original VAE paper, we assume both of these distributions are Gaussian \citep{kingma}. This allows us to express the variational loss term as
+The variational is the KL divergence between the approximated posterior and the prior distribution and thus regularizes the latent space. The posterior is the encoder distribution, and the prior captures which distribution the encoder distribution should be regularized to. Similar to \citet{kingma}, we assume both distributions are Gaussian, so that the variational loss term can be expressed as
 \begin{equation}
   \mathcal{L}_{\text{Variational}}
     = \frac{1}{\left|\mathcal{B}\right|} \sum_{i \in \mathcal{B}} \sum_{j=1}^J \left(
@@ -117,9 +114,9 @@ The variational loss term regularizes the latent space. It captures the KL diver
       - \left(\sigma_j^{(i)}\right)^2 
     \right)
 \end{equation}
-where $\sigma$ and $\mu$ determine the approximated \say{encoder} distribution, $J$ is the latent dimension, and $i$ ranges over all samples in the batch $\mathcal{B}$.
+where $\sigma$ and $\mu$ determine the approximated encoder distribution, $J$ is the latent dimension, and $i$ ranges over all samples in the batch $\mathcal{B}$.
 \subsubsection{Reconstruction loss}
-The original VAE paper uses a MSE reconstruction loss function \citep{kingma}. However, in the context of images, this loss function assumes that the impact of noise is independent of the local characteristics \citep{zhao2}. We therefore use a multiscale structural similarity index (MS-SSIM) term. MS-SSIM is a differentiable similarity metric that takes into account local features at various scale \citep{zhao2} and aims to produce visually-pleasing outputs. However, we found that using MS-SSIM term alone led to slow convergence. Therefore, similar to \citet{zhao2}, we instead augment the original MSE loss with MS-SSIM. We therefore express the reconstruction loss as
+\citet{kingma} use a MSE reconstruction loss function \citep{kingma}. However, in the context of images, this assumes that the impact of noise is independent of the local characteristics \citep{zhao2}. We therefore use a multiscale structural similarity index (MS-SSIM) term. MS-SSIM is a differentiable similarity metric that takes into account local features at various scale \citep{zhao2} and aims to produce visually-pleasing outputs. Using the MS-SSIM term alone led to slow convergence. Therefore, similar to \citet{zhao2}, we combine MSE and MS-SSIM loss. The reconstruction loss thus becomes
 \begin{equation}
   \mathcal{L}_{\text{Reconstruction}}
     = \frac{1}{\left|\mathcal{B}\right|} \sum_{i \in \mathcal{B}}
@@ -142,15 +139,16 @@ Finally, our full objective can be expresses as
 \end{equation}
 where $\alpha$ is used to account for different learning rates between the two loss terms.
 \subsection{Architecture}
-\textbf{Training 1: Encoder.} Our architecture combines the components of the standard convolutional VAE (Figure \ref{fig:pretrain}). Both domains share a single encoder $E$, which is trained in concord with a shared decoder $D$. Its purpose is to establish a shared latent space where, based on the shared latent space assumption, images with similar content from different domains will be mapped to a similar point.
+\textbf{Training 1: Encoder.} Our architecture combines the components of the standard convolutional VAE (Fig \ref{fig:pretrain}). Both domains share a single encoder $E$, which is trained in concord with a shared decoder $D$. Its purpose is to establish a shared latent space where, based on the shared latent space assumption, images with similar content from different domains will be mapped to a similar point.
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.7\linewidth]{report/assets/pretrain.png}
+  \includegraphics[width=0.6\linewidth]{report/assets/pretrain.png}
   \caption{Learning a shared latent representation for both image domains.}
   \label{fig:pretrain}
+  \vspace{-1cm}
 \end{figure}
-\begin{algorithm}[H]
-  \caption{The pre-training procedure}\label{alg:pre-train}
+\begin{algorithm}
+  \caption{The procedure for training the encoder $E$}\label{alg:pre-train}
   \begin{algorithmic}
     \State{// $X, Y \gets \text{loadDataset}()$}
     \State{$M \gets \text{new VAE}()$}
@@ -166,10 +164,10 @@ where $\alpha$ is used to account for different learning rates between the two l
   \end{algorithmic}
   \end{algorithm}
 
-\textbf{Training 2: Domain-specific decoders.} Once the encoder is trained, the encoder weights are frozen to fix the mapping to a shared latent space. Then, a separate decoder is trained for each domain (Figure \ref{fig:train}). For example, if we wish to map between images of apples and oranges, $E$ would encode images of both, apples and oranges, and there would be a dedicated decoder for each apples and oranges, respectively. 
+\textbf{Training 2: Domain-specific decoders.} Once the encoder is trained its weights are frozen to fix the mapping to a shared latent space. Then, a separate decoder is trained for each domain (Fig \ref{fig:train}). For example, when translating between images of apples and oranges, $E$ would encode images of both, apples and oranges, and apples and oranges would each have a dedicated decoder.
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.7\linewidth]{report/assets/train.png}
+  \includegraphics[width=0.6\linewidth]{report/assets/train.png}
   \caption{Learning the decoder $D_X$ for domain $X$ that uses embeddings from the shared latent space.}
   \label{fig:train}
 \end{figure}
@@ -186,12 +184,12 @@ where $\alpha$ is used to account for different learning rates between the two l
 %     \end{algorithmic}
 % \end{algorithm}
 
-\textbf{Style transfer.} To perform style transfer, we simply combine the encoder $E$ and a domain-specific decoder $D_X$ or $D_Y$. For example, to obtain a mapping from domain $Y$ to $X$, it suffices to use the encoder E and decoder $D_X$ (Figure \ref{fig:eval}).
+\textbf{Style transfer.} To perform style transfer, we combine the encoder and a domain-specific decoder. For example, to translate between domains $Y$ and $X$, we use the encoder E and decoder $D_X$ (Fig \ref{fig:eval}).
 
-\begin{figure}
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.7\linewidth]{report/assets/eval.png}
-  \caption{Translation from domain $Y$ to $X$ using the shared encoder $E$ and domain-specific decoder $D_X$.}
+  \includegraphics[width=0.6\linewidth]{report/assets/eval.png}
+  \caption{Translation from $Y$ to $X$ using shared encoder $E$ and domain-specific decoder $D_X$.}
   \label{fig:eval}
 \end{figure}
 % \begin{algorithm}[H]
@@ -204,37 +202,30 @@ where $\alpha$ is used to account for different learning rates between the two l
 \section{Experiments}
 We performed image translation experiments using three different datasets. The hyperparameters used to train on all the datasets can be found in Table \ref{tab:hyperparams}. The model results in translations that have some characteristics of the target domain, but the outputs still have blurry edges and lack clarity.
 \subsection{\texttt{apple2orange}}
-Our model's performance on \texttt{apple2orange} dataset was promising as it learnt the shape and color of the fruits well. For instance, in the below translation of orange to apple, the translation removed the leaf and the stem of the orange. Qualitatively, the translations of orange to apple look better than vice versa.
-% \begin{figure}
-%   \centering
-%   \includegraphics[width=0.5\linewidth]{report/assets/apple2orange.png}
-%   \caption{Image translations of apple to orange and vice versa}
-%   \label{fig:apple2orange}
-% \end{figure}
-
+Our model learnt the shape and color of the fruits well. For instance, in the below translation of orange to apple, the translation removed the leaf and the stem of the orange. Qualitatively, the translations of orange to apple look better than vice versa (Fig \ref{fig:apple2orange}).
+\begin{figure}[H]
+  \centering
+  \includegraphics[height=3.75cm]{report/assets/apple2orange.png}
+  \caption{Image translations between the \say{apple} and \say{orange} domains. The first line shows the original image, the second the translated version.}
+  \label{fig:apple2orange}
+\end{figure}
 \subsection{\texttt{summer2winter\_yosemite}}
-Our model's performance on \texttt{summer2winter\_yosemite} was not as good as \texttt{apple2orange} dataset. Qualitatively, we can tell the difference between the translations of the two seasons. The model learnt the color of the sky and the trees. The translations of summer images to winter resulted in output images that had gray skies and black trees, vice versa, the outputs had blue skies and green trees.
-% \begin{figure}
-%   \centering
-%   \includegraphics[width=0.4\linewidth]{report/assets/summer2winter.png}
-%   \caption{Image translations of summer to winter and vice versa}
-%   \label{fig:summer2winter}
-% \end{figure}
+Our model's performance on \texttt{summer2winter\_yosemite} was not as good as \texttt{apple2orange} dataset. Qualitatively, we can tell the difference between the translations of the two seasons. The model learnt the color of the sky and trees. The translations of summer images to winter resulted in images that had gray skies and black trees; vice versa, the outputs had blue skies and green trees (Fig \ref{fig:summer2winter}).
+\begin{figure}[H]
+  \centering
+  \includegraphics[height=3.75cm]{report/assets/summer2winter.png}
+  \caption{Image translations between the \say{winter} and \say{summer} domains. The first line shows the original image, the second the translated version.}
+  \label{fig:summer2winter}
+\end{figure}
 
 \subsection{\texttt{horse2zebra}}
-Our model performed the worst on the \texttt{horse2zebra} dataset. Qualitatively, it is impossible to tell the difference between the translations of the two animals – the translations only show the silhouette. It is possible that the model was not able to learn the physical features of the two animals since the horse dataset consists of horses of multiple colors.
-% \begin{figure}
-%   \centering
-%   \includegraphics[width=0.4\linewidth]{report/assets/horse2zebra.png}
-%   \caption{Image translations of horse to zebra and vice versa}
-%   \label{fig:horse2zebra}
-% \end{figure}
-
-% TODO: figure
-
-% \subsection{Evaluation metrics}
-
-% \subsection{Limitations}
+Our model performed the worst on the \texttt{horse2zebra} dataset. Qualitatively, it is impossible to tell the difference between the translations of the two animals as the translations only capture the silhouette. It is possible that the model was unable to learn the physical features of the two animals since the horse dataset consists of horses of multiple colors (Fig \ref{fig:horse2zebra}).
+\begin{figure}[H]
+  \centering
+  \includegraphics[height=3.75cm]{report/assets/horse2zebra.png}
+  \caption{Image translations between the \say{horse} and \say{zebra} domains. The first line shows the original image, the second the translated version.}
+  \label{fig:horse2zebra}
+\end{figure}
 
 \section{Conclusion and future work}
 Our VAE architecture performs worse than CycleGAN or the related architecture proposed by \citet{liu}. While the output content (e.g. the rough horse and zebra silhouettes) is maintained, the output quality is subpar. Our domain-specific decoder was likely limited by the quality of the latent representation produced by the shared encoder.
@@ -255,7 +246,7 @@ The shared encoder E and the domain-specific decoders $D_x$ and $D_y$ have the s
 \subsubsection{Datasets}
 We trained the model on the \texttt{apple2orange}, \texttt{summer2winter\_yosemite} and \texttt{horse2zebra} datasets. The images were split into domain-specific (i.e. apple and orange) datasets. The domain-specific datasets were used to train domain-specific decoders, and the combined domain dataset was used to train the shared encoder. The images used were of dimensions $256\times256$.
 \subsubsection{Training}
-The model was trained on Google Colab using a single NVIDIA Tesla K10 GPU. The shared encoder and domain-specific decoders were trained for a maximum of 70 epochs, respectively. The training duration was approximately 80 minutes.
+The model implement by adapting code from \citet{subramanian}. The model was trained on Google Colab using a single NVIDIA Tesla K10 GPU. The shared encoder and domain-specific decoders were trained for a maximum of 70 epochs, respectively. The training duration was approximately 80 minutes.
 \subsection{Hyperparameters}
 \begin{table}[H]
   \caption{The choice of hyperparameters}
@@ -555,7 +546,7 @@ The team collaborated closely across all phases of the project, including ideati
 % figure width as a multiple of the line width as in the example below:
 % \begin{verbatim}
 %   \usepackage[pdftex]{graphicx} ...
-%   \includegraphics[width=0.7\linewidth]{myfile.pdf}
+%   \includegraphics[width=0.6\linewidth]{myfile.pdf}
 % \end{verbatim}
 % See Section 4.4 in the graphics bundle documentation
 % (\url{http://mirrors.ctan.org/macros/latex/required/graphics/grfguide.pdf})
