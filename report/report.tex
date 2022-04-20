@@ -5,7 +5,7 @@
 % before loading neurips_2021
 
 % ready for submission
-\usepackage{neurips_2021}
+\usepackage[final]{neurips_2021}
 
 % to compile a preprint version, e.g., for submission to arXiv, add add the
 % [preprint] option:
@@ -34,7 +34,7 @@
 \bibliographystyle{abbrvnat}
 \setcitestyle{authoryear,open={(},close={)}} %Citation-related commands
 
-\title{Formatting Instructions For NeurIPS 2021}
+\title{Single-Encoder Image-To-Image Translation}
 
 % The \author macro works with any number of authors. There are two commands
 % used to separate the names and addresses of multiple authors: \And and \AND.
@@ -45,43 +45,42 @@
 % \AND instead of \And before the third author name.
 
 \author{%
-  David S.~Hippocampus\thanks{Use footnote for providing further information
-    about author (webpage, alternative address)---\emph{not} for acknowledging
-    funding agencies.} \\
-  Department of Computer Science\\
-  Cranberry-Lemon University\\
-  Pittsburgh, PA 15213 \\
-  \texttt{hippo@cs.cranberry-lemon.edu} \\
+  Adit Gajjar
+  % \thanks{Use footnote for providing further information
+  %   about author (webpage, alternative address)---\emph{not} for acknowledging
+  %   funding agencies.}
+  \\
+  University of Toronto\\
+  % Cranberry-Lemon University\\
+  % Pittsburgh, PA 15213 \\
+  % \texttt{hippo@cs.cranberry-lemon.edu} \\
   % examples of more authors
-  % \And
-  % Coauthor \\
-  % Affiliation \\
+  \And
+  Harsh Nasit \\
+  University of Toronto\\
   % Address \\
   % \texttt{email} \\
-  % \AND
-  % Coauthor \\
-  % Affiliation \\
+  \And
+  Filip Balucha \\
+  University of Edinburgh\\
   % Address \\
-  % \texttt{email} \\
-  % \And
-  % Coauthor \\
-  % Affiliation \\
-  % Address \\
-  % \texttt{email} \\
-  % \And
-  % Coauthor \\
-  % Affiliation \\
-  % Address \\
-  % \texttt{email} \\
+  % \texttt{filip.balucha@mail.utoronto.ca} \\
 }
 
 \begin{document}
-\bibliography{sample}
 
 \maketitle
 
-% Actual work:
-% TODO: test all citations
+% TODO: remove line numbers?
+\begin{abstract}
+  Image-to-image translation is a computer vision problem where an image is mapped from one domain to another. In the supervised scenario, the dataset consists of perfectly-paired image data. However, such data is either hard to find or simply does not exist \citep{zhu}. Therefore, we focus on the unsupervised setting, where a joint distribution of images across two domains is learnt using the marginal distributions – the images in individual domains \citep{liu}. We propose a model that builds on the shared latent space assumption and uses domain-specific decoders. In addition, our approach readily extends to more than two different domains. The implementation is available at https://github.com/HareshNasit/CSC413-Project.
+\end{abstract}
+
+\section{Introduction}
+\section{Related works}
+\section{Method}
+\subsection{Objective}
+\subsubsection{Variational loss}
 \begin{equation}
   \mathcal{L}_{\text{Variational}}
     = \frac{1}{\left|\mathcal{B}\right|} \sum_{i \in \mathcal{B}} \sum_{j=1}^J \left(
@@ -96,6 +95,7 @@
     \right)
 \end{equation}
 
+\subsubsection{Reconstruction loss}
 \begin{equation}
   \mathcal{L}_{\text{Reconstruction}}
     = \frac{1}{\left|\mathcal{B}\right|} \sum_{i \in \mathcal{B}}
@@ -109,65 +109,74 @@
     \right)
 \end{equation}
 
+\subsubsection{Full loss}
 \begin{equation}
   \mathcal{L}
   = \mathcal{L}_{\text{Variational}}
   + \mathcal{L}_{\text{Reconstruction}}
 \end{equation}
-
+\subsection{Architecture}
+\textbf{Pretraining – Encoder.}
 \begin{algorithm}[H]
-\caption{The pre-training procedure}\label{alg:pre-train}
-\begin{algorithmic}
-  \State{// $X, Y \gets \text{loadDataset}()$}
-  \State{$M \gets \text{new VAE}()$}
-  \State{}
-  \State{$E \gets \text{new Encoder}()$}
-  \State{$M\text{.encoder} \gets E$}
-  \State{}
-  \State{$D \gets \text{new Decoder}()$}
-  \State{$M\text{.decoder} \gets D$}
-  \State{}
-  \State{$M\text{.train}(X \cup Y)$}
-  \State{}
-\end{algorithmic}
+  \caption{The pre-training procedure}\label{alg:pre-train}
+  \begin{algorithmic}
+    \State{// $X, Y \gets \text{loadDataset}()$}
+    \State{$M \gets \text{new VAE}()$}
+    \State{}
+    \State{$E \gets \text{new Encoder}()$}
+    \State{$M\text{.encoder} \gets E$}
+    \State{}
+    \State{$D \gets \text{new Decoder}()$}
+    \State{$M\text{.decoder} \gets D$}
+    \State{}
+    \State{$M\text{.train}(X \cup Y)$}
+    \State{}
+  \end{algorithmic}
+  \end{algorithm}
+
+\textbf{Training – Domain-specific decoders.}
+\begin{algorithm}[H]
+  \caption{The training procedure}\label{alg:train}
+  \begin{algorithmic}
+    \State{// $X, Y \gets \text{loadDataset}()$}
+    \State{$D_X \gets \text{new Decoder}()$}
+    \State{$M\text{.decoder} = D_X$}
+    \State{}
+    \State{$M$.encoder.freeze()}
+    \State{}
+    \State{$M\text{.train}(X)$}
+    \end{algorithmic}
 \end{algorithm}
 
+\textbf{Evaluation – Style transfer.}
 \begin{algorithm}[H]
-\caption{The training procedure}\label{alg:train}
-\begin{algorithmic}
-  \State{// $X, Y \gets \text{loadDataset}()$}
-  \State{$D_X \gets \text{new Decoder}()$}
-  \State{$M\text{.decoder} = D_X$}
-  \State{}
-  \State{$M$.encoder.freeze()}
-  \State{}
-  \State{$M\text{.train}(X)$}
+  \caption{The evaluation procedure}\label{alg:eval}
+  \begin{algorithmic}
+    \State{$y \gets SampleFrom(Y)$}
+    \State{$M\text{.predict}(y)$}
   \end{algorithmic}
 \end{algorithm}
 
+\subsection{Training details}
+\subsubsection{Layer dimensions}
+\subsubsection{Datasets}
+\subsubsection{Training}
 
-\begin{algorithm}[H]
-\caption{The evaluation procedure}\label{alg:eval}
-\begin{algorithmic}
-  \State{$y \gets SampleFrom(Y)$}
-  \State{$M\text{.predict}(y)$}
-\end{algorithmic}
-\end{algorithm}
+\section{Experiments}
+\subsection{Evaluation metrics}
+\subsection{Limitations}
 
-\cite{liu}
-\citet{liu}
-\citep{liu}
+\section{Conclusion and future work}
+
+% Note: citations work like this:
+% \cite{liu}
+% \citet{liu}
+% \citep{liu}
+
+\bibliography{sample}
 
 % Template:
-
-\begin{abstract}
-  The abstract paragraph should be indented \nicefrac{1}{2}~inch (3~picas) on
-  both the left- and right-hand margins. Use 10~point type, with a vertical
-  spacing (leading) of 11~points.  The word \textbf{Abstract} must be centered,
-  bold, and in point size 12. Two line spaces precede the abstract. The abstract
-  must be limited to one paragraph.
-\end{abstract}
-
+\newpage
 \section{Submission of papers to NeurIPS 2021}
 
 Please read the instructions below carefully and follow them faithfully.

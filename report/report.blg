@@ -3,44 +3,47 @@ Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
 The top-level auxiliary file: report.aux
 The style file: abbrvnat.bst
 Database file #1: sample.bib
-You've used 1 entry,
+Warning--empty journal in liu
+Warning--empty journal in zhu
+You've used 2 entries,
             2773 wiz_defined-function locations,
-            596 strings with 4644 characters,
-and the built_in function-call counts, 431 in all, are:
-= -- 31
-> -- 30
+            599 strings with 4798 characters,
+and the built_in function-call counts, 911 in all, are:
+= -- 69
+> -- 69
 < -- 0
-+ -- 10
-- -- 9
-* -- 34
-:= -- 70
-add.period$ -- 2
-call.type$ -- 1
-change.case$ -- 6
-chr.to.int$ -- 1
-cite$ -- 2
-duplicate$ -- 16
-empty$ -- 34
-format.name$ -- 10
-if$ -- 84
++ -- 23
+- -- 21
+* -- 80
+:= -- 151
+add.period$ -- 6
+call.type$ -- 2
+change.case$ -- 13
+chr.to.int$ -- 2
+cite$ -- 6
+duplicate$ -- 40
+empty$ -- 63
+format.name$ -- 23
+if$ -- 176
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 0
-newline$ -- 12
-num.names$ -- 4
-pop$ -- 16
+missing$ -- 2
+newline$ -- 18
+num.names$ -- 8
+pop$ -- 30
 preamble$ -- 1
-purify$ -- 5
+purify$ -- 11
 quote$ -- 0
-skip$ -- 17
+skip$ -- 30
 stack$ -- 0
-substring$ -- 2
-swap$ -- 1
+substring$ -- 4
+swap$ -- 2
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 11
-warning$ -- 0
-while$ -- 3
+type$ -- 22
+warning$ -- 2
+while$ -- 6
 width$ -- 0
-write$ -- 17
+write$ -- 29
+(There were 2 warnings)
