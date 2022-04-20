@@ -31,8 +31,8 @@
 \usepackage{algpseudocode}  % algorithms
 \usepackage[english]{babel} % citations
 \usepackage{natbib}         % citations
-
 \usepackage{dirtytalk}      % quotations
+\usepackage{graphicx}
 \bibliographystyle{abbrvnat}
 \setcitestyle{numbers,open={[},close={]}} %Citation-related commands
 
@@ -143,8 +143,13 @@ Finally, our full objective can be expresses as
 \end{equation}
 where $\alpha$ is used to account for different learning rates between the two loss terms.
 \subsection{Architecture}
-\textbf{Pretraining – Encoder.} Our architecture combines the components of the standard convolutional VAE (Figure \ref{fig:pretrain}). Both domains share a single encoder $E$, which is trained in concord with a shared decoder $D$. Its purpose is to establish a shared latent space where, based on the shared latent space assumption, images with similar content from different domains will be mapped to a similar point.
-% TODO: figure: Learning a shared latent representation for both image domains.
+\textbf{Training 1: Encoder.} Our architecture combines the components of the standard convolutional VAE (Figure \ref{fig:pretrain}). Both domains share a single encoder $E$, which is trained in concord with a shared decoder $D$. Its purpose is to establish a shared latent space where, based on the shared latent space assumption, images with similar content from different domains will be mapped to a similar point.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\linewidth]{report/assets/pretrain.png}
+  \caption{Learning a shared latent representation for both image domains.}
+  \label{fig:pretrain}
+\end{figure}
 \begin{algorithm}[H]
   \caption{The pre-training procedure}\label{alg:pre-train}
   \begin{algorithmic}
@@ -162,8 +167,13 @@ where $\alpha$ is used to account for different learning rates between the two l
   \end{algorithmic}
   \end{algorithm}
 
-\textbf{Training – Domain-specific decoders.} Once the encoder is trained, the encoder weights are frozen to fix the mapping to a shared latent space. Then, a separate decoder is trained for each domain (Figure \ref{fig:train}). For example, if we wish to map between images of apples and oranges, $E$ would encode images of both, apples and oranges, and there would be a dedicated decoder for each apples and oranges, respectively. 
-% TODO: figure: Learning the decoder D_X for domain X that uses embeddings from the shared latent space.
+\textbf{Training 2: Domain-specific decoders.} Once the encoder is trained, the encoder weights are frozen to fix the mapping to a shared latent space. Then, a separate decoder is trained for each domain (Figure \ref{fig:train}). For example, if we wish to map between images of apples and oranges, $E$ would encode images of both, apples and oranges, and there would be a dedicated decoder for each apples and oranges, respectively. 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\linewidth]{report/assets/train.png}
+  \caption{Learning the decoder $D_X$ for domain $X$ that uses embeddings from the shared latent space.}
+  \label{fig:train}
+\end{figure}
 \begin{algorithm}[H]
   \caption{The training procedure}\label{alg:train}
   \begin{algorithmic}
@@ -177,8 +187,14 @@ where $\alpha$ is used to account for different learning rates between the two l
     \end{algorithmic}
 \end{algorithm}
 
-\textbf{Evaluation – Style transfer.} To perform style transfer, we simply combine the encoder $E$ and a domain-specific decoder $D_X$ or $D_Y$. For example, to obtain a mapping from domain $Y$ to $X$, it suffices to use the encoder E and decoder $D_X$ (Figure \ref{fig:eval}).
-% TODO: figure: Performing style transfer from domain Y to X using the shared encoder E and domain-specific decoder D_X.
+\textbf{Style transfer.} To perform style transfer, we simply combine the encoder $E$ and a domain-specific decoder $D_X$ or $D_Y$. For example, to obtain a mapping from domain $Y$ to $X$, it suffices to use the encoder E and decoder $D_X$ (Figure \ref{fig:eval}).
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\linewidth]{report/assets/eval.png}
+  \caption{Performing style transfer from domain $Y$ to $X$ using the shared encoder $E$ and domain-specific decoder $D_X$.}
+  \label{fig:eval}
+\end{figure}
 \begin{algorithm}[H]
   \caption{The evaluation procedure}\label{alg:eval}
   \begin{algorithmic}
