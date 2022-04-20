@@ -246,7 +246,7 @@ The shared encoder E and the domain-specific decoders $D_x$ and $D_y$ have the s
 \subsubsection{Datasets}
 We trained the model on the \texttt{apple2orange}, \texttt{summer2winter\_yosemite} and \texttt{horse2zebra} datasets. The images were split into domain-specific (i.e. apple and orange) datasets. The domain-specific datasets were used to train domain-specific decoders, and the combined domain dataset was used to train the shared encoder. The images used were of dimensions $256\times256$.
 \subsubsection{Training}
-The model implement by adapting code from \citet{subramanian}. The model was trained on Google Colab using a single NVIDIA Tesla K10 GPU. The shared encoder and domain-specific decoders were trained for a maximum of 70 epochs, respectively. The training duration was approximately 80 minutes.
+The model was implemented by adapting code from \citet{subramanian}. The model was trained on Google Colab using a single NVIDIA Tesla K10 GPU. The shared encoder and domain-specific decoders were trained for a maximum of 70 epochs, respectively. The training duration was approximately 80 minutes.
 \subsection{Hyperparameters}
 \begin{table}[H]
   \caption{The choice of hyperparameters}
