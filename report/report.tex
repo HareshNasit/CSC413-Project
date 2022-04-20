@@ -36,7 +36,7 @@
 \bibliographystyle{abbrvnat}
 \setcitestyle{numbers,open={[},close={]}} %Citation-related commands
 
-\title{Single-Encoder VAE Image-To-Image Translation}
+\title{Single-Encoder VAE for Image-To-Image Translation}
 
 % The \author macro works with any number of authors. There are two commands
 % used to separate the names and addresses of multiple authors: \And and \AND.
@@ -75,7 +75,7 @@
 
 % TODO: remove line numbers?
 \begin{abstract}
-  Image-to-image translation is a computer vision problem where an image is mapped from one domain to another. In the supervised scenario, the dataset consists of perfectly-paired image data. However, such data is either hard to find or simply does not exist \citep{zhu}. Therefore, we focus on the unsupervised setting, where a joint distribution of images across two domains is learnt using the marginal distributions – the images in individual domains \citep{liu}. We propose a model that builds on the shared latent space assumption and uses domain-specific decoders. In addition, our approach readily extends to more than two different domains. The implementation is available at https://github.com/HareshNasit/CSC413-Project.
+  Image-to-image translation is a computer vision problem where an image is mapped from one domain to another. In the supervised scenario, the dataset consists of perfectly-paired image data. However, such data is either hard to find or simply does not exist \citep{zhu}. Therefore, we focus on the unsupervised setting, where a joint distribution of images across two domains is learnt using the marginal distributions – the images in individual domains \citep{liu}. We propose a model that builds on the shared latent space assumption and uses domain-specific decoders and readily extends to more than two different domains. The implementation is available \href{https://github.com/HareshNasit/CSC413-Project}{here}.
 \end{abstract}
 \section{Introduction}
 At a high level, image-to-image translation aims to capture the characteristics of one image collection and determine how these could be translated into another image collection \citep{zhu}. Mathematically, the goal is to learn a mapping $G: X \rightarrow Y$, where X is the source and Y the target domain.
@@ -191,7 +191,7 @@ where $\alpha$ is used to account for different learning rates between the two l
 \begin{figure}
   \centering
   \includegraphics[width=0.7\linewidth]{report/assets/eval.png}
-  \caption{Performing style transfer from domain $Y$ to $X$ using the shared encoder $E$ and domain-specific decoder $D_X$.}
+  \caption{Translation from domain $Y$ to $X$ using the shared encoder $E$ and domain-specific decoder $D_X$.}
   \label{fig:eval}
 \end{figure}
 % \begin{algorithm}[H]
@@ -205,12 +205,30 @@ where $\alpha$ is used to account for different learning rates between the two l
 We performed image translation experiments using three different datasets. The hyperparameters used to train on all the datasets can be found in Table \ref{tab:hyperparams}. The model results in translations that have some characteristics of the target domain, but the outputs still have blurry edges and lack clarity.
 \subsection{\texttt{apple2orange}}
 Our model's performance on \texttt{apple2orange} dataset was promising as it learnt the shape and color of the fruits well. For instance, in the below translation of orange to apple, the translation removed the leaf and the stem of the orange. Qualitatively, the translations of orange to apple look better than vice versa.
+% \begin{figure}
+%   \centering
+%   \includegraphics[width=0.5\linewidth]{report/assets/apple2orange.png}
+%   \caption{Image translations of apple to orange and vice versa}
+%   \label{fig:apple2orange}
+% \end{figure}
 
 \subsection{\texttt{summer2winter\_yosemite}}
 Our model's performance on \texttt{summer2winter\_yosemite} was not as good as \texttt{apple2orange} dataset. Qualitatively, we can tell the difference between the translations of the two seasons. The model learnt the color of the sky and the trees. The translations of summer images to winter resulted in output images that had gray skies and black trees, vice versa, the outputs had blue skies and green trees.
+% \begin{figure}
+%   \centering
+%   \includegraphics[width=0.4\linewidth]{report/assets/summer2winter.png}
+%   \caption{Image translations of summer to winter and vice versa}
+%   \label{fig:summer2winter}
+% \end{figure}
 
 \subsection{\texttt{horse2zebra}}
 Our model performed the worst on the \texttt{horse2zebra} dataset. Qualitatively, it is impossible to tell the difference between the translations of the two animals – the translations only show the silhouette. It is possible that the model was not able to learn the physical features of the two animals since the horse dataset consists of horses of multiple colors.
+% \begin{figure}
+%   \centering
+%   \includegraphics[width=0.4\linewidth]{report/assets/horse2zebra.png}
+%   \caption{Image translations of horse to zebra and vice versa}
+%   \label{fig:horse2zebra}
+% \end{figure}
 
 % TODO: figure
 
@@ -221,7 +239,7 @@ Our model performed the worst on the \texttt{horse2zebra} dataset. Qualitatively
 \section{Conclusion and future work}
 Our VAE architecture performs worse than CycleGAN or the related architecture proposed by \citet{liu}. While the output content (e.g. the rough horse and zebra silhouettes) is maintained, the output quality is subpar. Our domain-specific decoder was likely limited by the quality of the latent representation produced by the shared encoder.
 
-A more complex encoder, such as the one proposed by \citet{liu}, could learn a better representation of the domains and thus produce better translations. Another way to produce higher-quality images would be to replace our standard VAE architecture with a hierarchical VAE or VQ-VAE which has been shown to produce higher quality reconstructions. In addition, a more-informed loss function could improve quality. For instance, similar to \citet{liu}, a loss term based on a discriminator network could be used for translated images.
+A more complex encoder, such as the one proposed by \citet{liu}, could learn a better representation of the domains and thus produce better translations. Another way to produce higher-quality images would be to replace our standard VAE architecture with a hierarchical VAE or VQ-VAE which has been shown to produce higher quality reconstructions \citep{vahdat}. In addition, a more-informed loss function could improve quality. For instance, similar to \citet{liu}, a loss term based on a discriminator network could be used for translated images.
 
 \newpage
 \bibliography{sample}
