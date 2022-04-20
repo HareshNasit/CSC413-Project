@@ -129,7 +129,6 @@ class VanillaVAE(BaseVAE):
         decoder_params = [in_channels, latent_dim, list(reversed(hidden_dims)), self.patch_size_hidden]
         self.decoders = {
             DecoderType.COMBINED: Decoder(*decoder_params),
-            # TODO: update later
             DecoderType.DOMAIN_X: Decoder(*decoder_params),
             DecoderType.DOMAIN_Y: Decoder(*decoder_params)
         }

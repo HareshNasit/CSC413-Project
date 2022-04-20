@@ -5,7 +5,6 @@ from models import BaseVAE
 from models.types_ import *
 import pytorch_lightning as pl
 import torchvision.utils as vutils
-from torchvision.datasets import CelebA
 
 
 class VAEXperiment(pl.LightningModule):

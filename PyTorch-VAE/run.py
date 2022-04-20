@@ -5,12 +5,12 @@ import numpy as np
 from pathlib import Path
 from models import *
 from experiment import VAEXperiment
-# import torch.backends.cudnn as cudnn
+
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.utilities.seed import seed_everything
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
-# from dataset import VAEDataset, VAEDataset2, VAEDataset3
+
 from dataset import VAEDatasetAppleOrange as VAEDataset
 from pytorch_lightning.plugins import DDPPlugin
 
@@ -48,11 +48,6 @@ model = vae_models[config['model_params']['name']](**{
 experiment = VAEXperiment(model,
                           config['exp_params'])
 
-# data = VAEDataset(**config["data_params"], pin_memory=len(config['trainer_params']['gpus']) != 0)
-# TODO: we added
-# data = VAEDataset2(**config["data_params"], pin_memory=len(config['trainer_params']['gpus']) != 0)
-# data = VAEDataset3(**config["data_params"], pin_memory=len(config['trainer_params']['gpus']) != 0)
-
 def create_runner(logger):
   runner = Trainer(
     logger=logger,
@@ -81,7 +76,7 @@ Path(f"{full_logger.log_dir}/Reconstructions").mkdir(exist_ok=True, parents=True
 
 print(f"======= Training {config['model_params']['name']} =======")
 
-runner.fit(experiment, datamodule=data)  # TODO: uncomment
+runner.fit(experiment, datamodule=data)
 
 # 2. Freeze the encoder
 model.freeze_encoder()
@@ -108,10 +103,6 @@ Path(f"{domainX_logger.log_dir}/Reconstructions").mkdir(exist_ok=True, parents=T
 runner.fit(experiment_X, datamodule=data_X)
 
 # 3b. - Domain Y
-# TODO: do same for Y
-
-# 4. Image to image translation (X -> Y) and (Y -> X)
-# Sample from X
 domainY_logger = create_logger('domainY')
 runner = create_runner(domainY_logger)
 

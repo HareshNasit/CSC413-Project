@@ -2,8 +2,6 @@
                                  Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
-			    Copyright Anand Krishnamoorthy Subramanian 2020
-			               anandkrish894@gmail.com
 
    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
 
